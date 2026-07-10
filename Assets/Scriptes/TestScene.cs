@@ -14,7 +14,7 @@ public class TestScene : MonoBehaviour
     {
         loadPanel.SetActive(false);
         selectPanel.SetActive(false);
-        //MainPanal.SetActive(true);
+        MainPanal.SetActive(true);
     }
 
     // Update is called once per frame
