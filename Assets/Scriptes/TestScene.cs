@@ -5,36 +5,53 @@ using UnityEngine.UIElements;
 
 public class TestScene : MonoBehaviour
 {
-    public GameObject loadPanel;
+    public GameObject shouyePanel;
     public GameObject selectPanel;
     public GameObject MainPanal;
-
+    public Animator shouyeanimator;
+    bool shouye = true;
     // Start is called before the first frame update
     void Start()
     {
-        loadPanel.SetActive(false);
+        shouyePanel.SetActive(shouye);
         selectPanel.SetActive(false);
-        MainPanal.SetActive(true);
+        MainPanal.SetActive(false);
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+       
+        Qingchu();
     }
 
     public void StartGame()
     {
         MainPanal.SetActive(false);
-        loadPanel.SetActive(true);
-
-        StartCoroutine(DelaystarGame());
+        shouyePanel.SetActive(shouye);
+     
+       // StartCoroutine(DelaystarGame());
     }
 
     IEnumerator DelaystarGame()
     {
         yield return new WaitForSeconds(2);
-        loadPanel.SetActive(false);
+        shouyePanel.SetActive(false);
         selectPanel.SetActive(true) ;
     }
+    void Qingchu()
+    { 
+       
+        if (shouye && Input.GetMouseButtonDown(0))
+        {
+            Debug.Log(1111);
+           // shouye = false;
+          //  shouyePanel.SetActive(shouye);
+           // MainPanal.SetActive(true);
+            shouyeanimator.SetBool("is Mousedown", true);
+        }
+       
+    }
+
 }
