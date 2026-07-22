@@ -44,5 +44,5 @@ public class RepairPointData
     public float snapDistance = 0.5f;
 
     [Header("碰撞器")]
-    public bool addBoxCollider = true;
+    public bool addPolygonCollider  = true;
 }

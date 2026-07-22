@@ -129,11 +129,11 @@ public class RepairLevelBuilder : MonoBehaviour
                 levelRoot
             );
 
-            if (point.addBoxCollider)
+            if (point.addPolygonCollider )
             {
                 if (dragObj.GetComponent<Collider2D>() == null)
                 {
-                    dragObj.AddComponent<BoxCollider2D>();
+                    dragObj.AddComponent<PolygonCollider2D>();
                 }
             }
 

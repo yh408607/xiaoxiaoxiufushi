@@ -218,9 +218,9 @@ public class RepairLevelEditorWindow : EditorWindow
             point.snapDistance
         );
 
-        point.addBoxCollider = EditorGUILayout.Toggle(
+        point.addPolygonCollider  = EditorGUILayout.Toggle(
             "自动添加 BoxCollider2D",
-            point.addBoxCollider
+            point.addPolygonCollider 
         );
 
         EditorGUILayout.EndVertical();
