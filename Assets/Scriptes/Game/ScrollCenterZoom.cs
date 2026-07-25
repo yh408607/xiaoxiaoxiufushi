@@ -9,18 +9,18 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     public ScrollRect scrollRect;
     public RectTransform content;
     public RectTransform viewport;
-    public Transform itemRoot; // ¿ÉÑ¡£º²»ÌîÔòÓÃ content
+    public Transform itemRoot; // å¯é€‰ï¼šä¸å¡«åˆ™ç”¨ content
 
     [Header("Scale Settings")]
     [Range(0.2f, 1f)] public float minScale = 0.8f;
     [Range(1f, 2f)] public float maxScale = 1.2f;
-    public float scaleDistance = 300f; // ¾àÀëÖĞĞÄ¶àÉÙÏñËØÄÚ¿ªÊ¼Ã÷ÏÔ·Å´ó
+    public float scaleDistance = 300f; // è·ç¦»ä¸­å¿ƒå¤šå°‘åƒç´ å†…å¼€å§‹æ˜æ˜¾æ”¾å¤§
     public float lerpSpeed = 12f;
 
     [Header("Snap Settings")]
     public bool snapToCenter = true;
     public float snapSpeed = 10f;
-    public float snapThreshold = 0.001f; // Í£Ö¹ãĞÖµ£¨anchoredPosition ²îÖµ£©
+    public float snapThreshold = 0.001f; // åœæ­¢é˜ˆå€¼ï¼ˆanchoredPosition å·®å€¼ï¼‰
 
     private readonly List<RectTransform> items = new List<RectTransform>();
     private bool isDragging = false;
@@ -142,7 +142,7 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     {
         if (index < 0 || index >= items.Count) return;
 
-        // ¼ÆËã item ÖĞĞÄÓë viewport ÖĞĞÄµÄÊÀ½ç×ø±êÆ«ÒÆ£¬ÔÙ×ª³É content µÄ anchoredPosition.x Æ«ÒÆ
+        // è®¡ç®— item ä¸­å¿ƒä¸ viewport ä¸­å¿ƒçš„ä¸–ç•Œåæ ‡åç§»ï¼Œå†è½¬æˆ content çš„ anchoredPosition.x åç§»
         float viewportCenterX = GetViewportCenterXInWorld();
         float itemCenterX = GetItemCenterXInWorld(items[index]);
         float deltaWorld = viewportCenterX - itemCenterX;
@@ -150,7 +150,7 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         Vector2 pos = content.anchoredPosition;
         Vector2 targetPos = new Vector2(pos.x + deltaWorld, pos.y);
 
-        // ¿ÉÑ¡±ß½çÏŞÖÆ£¨·ÀÖ¹³¬³ö content£©
+        // å¯é€‰è¾¹ç•Œé™åˆ¶ï¼ˆé˜²æ­¢è¶…å‡º contentï¼‰
         targetPos = ClampContentPos(targetPos);
 
         content.anchoredPosition = Vector2.Lerp(content.anchoredPosition, targetPos, Time.deltaTime * snapSpeed);
@@ -163,18 +163,18 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
 
     private Vector2 ClampContentPos(Vector2 pos)
     {
-        // ¶ÔÓÚ´ó²¿·ÖË®Æ½ ScrollRect£¨pivot Ò»°ãÔÚ×óÉÏ/ÖĞ£©£¬Õâ¸öÏŞÖÆ¿É±ÜÃâÎü¸½Ô½½ç¡£
-        // ÈôÄãµÄÃªµã/pivot ÌØÊâ£¬¿É×ÔĞĞµ÷Õû´Ëº¯Êı¡£
+        // å¯¹äºå¤§éƒ¨åˆ†æ°´å¹³ ScrollRectï¼ˆpivot ä¸€èˆ¬åœ¨å·¦ä¸Š/ä¸­ï¼‰ï¼Œè¿™ä¸ªé™åˆ¶å¯é¿å…å¸é™„è¶Šç•Œã€‚
+        // è‹¥ä½ çš„é”šç‚¹/pivot ç‰¹æ®Šï¼Œå¯è‡ªè¡Œè°ƒæ•´æ­¤å‡½æ•°ã€‚
         if (!scrollRect.horizontal) return pos;
 
         float contentWidth = content.rect.width;
         float viewportWidth = viewport.rect.width;
 
-        // content ±È viewport Ğ¡Ê±£¬²»ĞèÒª¹ö¶¯
+        // content æ¯” viewport å°æ—¶ï¼Œä¸éœ€è¦æ»šåŠ¨
         if (contentWidth <= viewportWidth) return new Vector2(0f, pos.y);
 
-        // ÏÂÃæÊÇ³£¼ûÉèÖÃÏÂµÄ·¶Î§¹ÀËã£º
-        // ×ó±ß½ç£º0£¬ÓÒ±ß½ç£ºcontentWidth - viewportWidth£¨È¡¾öÓÚÃªµã·½Ïò£¬±ØÒªÊ±È¡·´£©
+        // ä¸‹é¢æ˜¯å¸¸è§è®¾ç½®ä¸‹çš„èŒƒå›´ä¼°ç®—ï¼š
+        // å·¦è¾¹ç•Œï¼š0ï¼Œå³è¾¹ç•Œï¼šcontentWidth - viewportWidthï¼ˆå–å†³äºé”šç‚¹æ–¹å‘ï¼Œå¿…è¦æ—¶å–åï¼‰
         float minX = -(contentWidth - viewportWidth);
         float maxX = 0f;
 

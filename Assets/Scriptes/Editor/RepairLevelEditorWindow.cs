@@ -49,12 +49,18 @@ public class RepairLevelEditorWindow : EditorWindow
     {
         EditorGUILayout.Space(8);
         EditorGUILayout.LabelField("修复缺口关卡编辑器", EditorStyles.boldLabel);
-        EditorGUILayout.Space(8);
+        EditorGUILayout.HelpBox(
+            "玩法逻辑：完整底图一直显示，灰色遮挡图盖住部分区域。拖拽图片修复成功后，拖拽图片和灰色遮挡图隐藏，露出完整底图。",
+            MessageType.Info
+        );
+        EditorGUILayout.Space(4);
     }
 
     private void DrawLevelAssetArea()
     {
         EditorGUILayout.BeginVertical("box");
+
+        EditorGUILayout.LabelField("关卡资源", EditorStyles.boldLabel);
 
         levelData = (RepairLevelData)EditorGUILayout.ObjectField(
             "当前关卡数据",
@@ -63,10 +69,12 @@ public class RepairLevelEditorWindow : EditorWindow
             false
         );
 
+        EditorGUILayout.Space(4);
+
         newLevelName = EditorGUILayout.TextField("新关卡名称", newLevelName);
         saveFolder = EditorGUILayout.TextField("保存目录", saveFolder);
 
-        if (GUILayout.Button("创建新关卡数据"))
+        if (GUILayout.Button("创建新关卡数据", GUILayout.Height(26)))
         {
             CreateNewLevelAsset();
         }
@@ -81,22 +89,35 @@ public class RepairLevelEditorWindow : EditorWindow
 
         EditorGUILayout.LabelField("基础信息", EditorStyles.boldLabel);
 
-        levelData.levelName = EditorGUILayout.TextField("关卡名称", levelData.levelName);
+        levelData.levelName = EditorGUILayout.TextField(
+            "关卡名称",
+            levelData.levelName
+        );
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField("完整参考底图 / 实际底图", EditorStyles.boldLabel);
+
         levelData.backgroundSprite = (Sprite)EditorGUILayout.ObjectField(
-            "背景图",
+            "完整底图",
             levelData.backgroundSprite,
             typeof(Sprite),
             false
         );
 
         levelData.backgroundPosition = EditorGUILayout.Vector3Field(
-            "背景位置",
+            "底图位置",
             levelData.backgroundPosition
         );
 
         levelData.backgroundSortingOrder = EditorGUILayout.IntField(
-            "背景层级",
+            "底图层级",
             levelData.backgroundSortingOrder
+        );
+
+        EditorGUILayout.HelpBox(
+            "灰色遮挡图需要对齐这张完整底图的对应区域。修复成功后隐藏灰色遮挡图，底图自然露出。",
+            MessageType.None
         );
 
         EditorGUILayout.EndVertical();
@@ -124,6 +145,11 @@ public class RepairLevelEditorWindow : EditorWindow
             return;
         }
 
+        if (levelData.repairPoints.Count == 0)
+        {
+            EditorGUILayout.HelpBox("当前没有修复点，请点击“添加修复点”。", MessageType.Info);
+        }
+
         for (int i = 0; i < levelData.repairPoints.Count; i++)
         {
             DrawRepairPointItem(i);
@@ -135,6 +161,12 @@ public class RepairLevelEditorWindow : EditorWindow
     private void DrawRepairPointItem(int index)
     {
         RepairPointData point = levelData.repairPoints[index];
+
+        if (point == null)
+        {
+            EditorGUILayout.HelpBox($"修复点 {index + 1} 数据为空。", MessageType.Warning);
+            return;
+        }
 
         EditorGUILayout.Space(6);
         EditorGUILayout.BeginVertical("box");
@@ -153,37 +185,37 @@ public class RepairLevelEditorWindow : EditorWindow
 
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.Space(4);
+
         point.id = EditorGUILayout.TextField("匹配 ID", point.id);
 
-        EditorGUILayout.Space(4);
+        EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("图片资源", EditorStyles.boldLabel);
 
         point.graySlotSprite = (Sprite)EditorGUILayout.ObjectField(
-            "灰色缺口图",
+            "灰色遮挡图",
             point.graySlotSprite,
             typeof(Sprite),
             false
         );
 
-        point.repairedSprite = (Sprite)EditorGUILayout.ObjectField(
-            "修复后图",
-            point.repairedSprite,
-            typeof(Sprite),
-            false
-        );
-
         point.dragPieceSprite = (Sprite)EditorGUILayout.ObjectField(
-            "拖拽图",
+            "拖拽图片",
             point.dragPieceSprite,
             typeof(Sprite),
             false
         );
 
-        EditorGUILayout.Space(4);
+        EditorGUILayout.HelpBox(
+            "这里不需要修复后图片。修复成功后会隐藏灰色遮挡图和拖拽图片，露出完整底图。",
+            MessageType.None
+        );
+
+        EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("位置", EditorStyles.boldLabel);
 
         point.slotPosition = EditorGUILayout.Vector3Field(
-            "缺口位置",
+            "灰色遮挡位置",
             point.slotPosition
         );
 
@@ -192,36 +224,75 @@ public class RepairLevelEditorWindow : EditorWindow
             point.dragStartPosition
         );
 
-        EditorGUILayout.Space(4);
-        EditorGUILayout.LabelField("层级", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox(
+            "建议点击“生成预览到当前场景”后，在 Scene 视图中对齐灰色遮挡图，再点击“从场景回写位置”。",
+            MessageType.None
+        );
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("显示层级", EditorStyles.boldLabel);
 
         point.slotSortingOrder = EditorGUILayout.IntField(
-            "灰色缺口层级",
+            "灰色遮挡层级",
             point.slotSortingOrder
         );
 
-        point.repairedSortingOrder = EditorGUILayout.IntField(
-            "修复图层级",
-            point.repairedSortingOrder
-        );
-
         point.dragSortingOrder = EditorGUILayout.IntField(
-            "拖拽图层级",
+            "拖拽图片层级",
             point.dragSortingOrder
         );
 
-        EditorGUILayout.Space(4);
-        EditorGUILayout.LabelField("吸附与碰撞", EditorStyles.boldLabel);
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("吸附", EditorStyles.boldLabel);
 
         point.snapDistance = EditorGUILayout.FloatField(
             "吸附距离",
             point.snapDistance
         );
 
-        point.addPolygonCollider  = EditorGUILayout.Toggle(
-            "自动添加 BoxCollider2D",
-            point.addPolygonCollider 
+        if (point.snapDistance < 0f)
+        {
+            point.snapDistance = 0f;
+        }
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("碰撞器", EditorStyles.boldLabel);
+
+        point.colliderType = (RepairColliderType)EditorGUILayout.EnumPopup(
+            "碰撞器类型",
+            point.colliderType
         );
+
+        EditorGUILayout.HelpBox(
+            "拖拽图片需要 Collider2D 才能响应 OnMouseDown / OnMouseDrag。普通矩形用 Box，不规则图片用 Polygon。",
+            MessageType.None
+        );
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("拖拽高亮", EditorStyles.boldLabel);
+
+        point.enableOutline = EditorGUILayout.Toggle(
+            "启用描边",
+            point.enableOutline
+        );
+
+        if (point.enableOutline)
+        {
+            point.outlineColor = EditorGUILayout.ColorField(
+                "描边颜色",
+                point.outlineColor
+            );
+
+            point.outlineSize = EditorGUILayout.FloatField(
+                "描边粗细",
+                point.outlineSize
+            );
+
+            if (point.outlineSize < 0f)
+            {
+                point.outlineSize = 0f;
+            }
+        }
 
         EditorGUILayout.EndVertical();
     }
@@ -231,15 +302,27 @@ public class RepairLevelEditorWindow : EditorWindow
         EditorGUILayout.Space(8);
         EditorGUILayout.BeginVertical("box");
 
-        if (GUILayout.Button("一键生成到当前场景", GUILayout.Height(32)))
+        EditorGUILayout.LabelField("场景预览与保存", EditorStyles.boldLabel);
+
+        if (GUILayout.Button("生成预览到当前场景", GUILayout.Height(32)))
         {
             GenerateLevelInScene();
         }
 
-        if (GUILayout.Button("保存关卡数据"))
+        if (GUILayout.Button("从场景回写位置", GUILayout.Height(28)))
+        {
+            SavePositionsFromScene();
+        }
+
+        if (GUILayout.Button("保存关卡数据", GUILayout.Height(28)))
         {
             SaveLevelData();
         }
+
+        EditorGUILayout.HelpBox(
+            "推荐流程：先生成预览到当前场景，然后在 Scene 视图中拖动 Slot_xxx 和 DragPiece_xxx，最后点击从场景回写位置。",
+            MessageType.Info
+        );
 
         EditorGUILayout.EndVertical();
     }
@@ -251,12 +334,23 @@ public class RepairLevelEditorWindow : EditorWindow
             levelData.repairPoints = new System.Collections.Generic.List<RepairPointData>();
         }
 
-        int index = levelData.repairPoints.Count + 1;
+        int number = levelData.repairPoints.Count + 1;
 
         RepairPointData point = new RepairPointData();
-        point.id = "piece_" + index.ToString("00");
+        point.id = "piece_" + number.ToString("00");
+
         point.slotPosition = Vector3.zero;
-        point.dragStartPosition = new Vector3(index * 1.2f, -3f, 0f);
+        point.dragStartPosition = new Vector3(number * 1.2f, -3f, 0f);
+
+        point.slotSortingOrder = 0;
+        point.dragSortingOrder = 5;
+
+        point.snapDistance = 0.5f;
+        point.colliderType = RepairColliderType.Polygon;
+
+        point.enableOutline = true;
+        point.outlineColor = Color.yellow;
+        point.outlineSize = 0.05f;
 
         levelData.repairPoints.Add(point);
 
@@ -265,6 +359,17 @@ public class RepairLevelEditorWindow : EditorWindow
 
     private void CreateNewLevelAsset()
     {
+        if (string.IsNullOrEmpty(newLevelName))
+        {
+            Debug.LogWarning("新关卡名称不能为空");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(saveFolder))
+        {
+            saveFolder = "Assets/RepairLevels";
+        }
+
         if (!AssetDatabase.IsValidFolder(saveFolder))
         {
             Directory.CreateDirectory(saveFolder);
@@ -275,6 +380,7 @@ public class RepairLevelEditorWindow : EditorWindow
         asset.levelName = newLevelName;
 
         string path = Path.Combine(saveFolder, newLevelName + ".asset");
+        path = path.Replace("\\", "/");
         path = AssetDatabase.GenerateUniqueAssetPath(path);
 
         AssetDatabase.CreateAsset(asset, path);
@@ -282,7 +388,6 @@ public class RepairLevelEditorWindow : EditorWindow
         AssetDatabase.Refresh();
 
         levelData = asset;
-
         Selection.activeObject = asset;
 
         Debug.Log("创建关卡数据成功：" + path);
@@ -327,12 +432,63 @@ public class RepairLevelEditorWindow : EditorWindow
         builder.BuildLevel();
 
         EditorUtility.SetDirty(builderObj);
-        Debug.Log("关卡已生成到当前场景：" + levelData.levelName);
+
+        Debug.Log("关卡预览已生成到当前场景：" + levelData.levelName);
+    }
+
+    private void SavePositionsFromScene()
+    {
+        if (levelData == null)
+        {
+            Debug.LogWarning("没有选择关卡数据");
+            return;
+        }
+
+        if (levelData.repairPoints == null)
+        {
+            Debug.LogWarning("修复点列表为空");
+            return;
+        }
+
+        int saveCount = 0;
+
+        for (int i = 0; i < levelData.repairPoints.Count; i++)
+        {
+            RepairPointData point = levelData.repairPoints[i];
+
+            if (point == null) continue;
+
+            GameObject slotObj = GameObject.Find("Slot_" + point.id);
+
+            if (slotObj != null)
+            {
+                point.slotPosition = slotObj.transform.position;
+                saveCount++;
+            }
+
+            GameObject dragObj = GameObject.Find("DragPiece_" + point.id);
+
+            if (dragObj != null)
+            {
+                point.dragStartPosition = dragObj.transform.position;
+                saveCount++;
+            }
+        }
+
+        EditorUtility.SetDirty(levelData);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("已从场景回写位置，回写数量：" + saveCount);
     }
 
     private void SaveLevelData()
     {
-        if (levelData == null) return;
+        if (levelData == null)
+        {
+            Debug.LogWarning("没有选择关卡数据");
+            return;
+        }
 
         EditorUtility.SetDirty(levelData);
         AssetDatabase.SaveAssets();
@@ -349,10 +505,13 @@ public class RepairLevelEditorWindow : EditorWindow
             System.Reflection.BindingFlags.Instance
         );
 
-        if (field != null)
+        if (field == null)
         {
-            field.SetValue(target, value);
+            Debug.LogWarning($"字段不存在：{type.Name}.{fieldName}");
+            return;
         }
+
+        field.SetValue(target, value);
     }
 }
 #endif

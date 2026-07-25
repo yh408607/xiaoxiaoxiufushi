@@ -5,11 +5,6 @@ public class RepairLevelBuilder : MonoBehaviour
 {
     [Header("关卡数据")]
     [SerializeField] private RepairLevelData levelData;
-    public RepairLevelData LevelData
-    {
-        get => levelData;
-        set => levelData = value;
-    }
 
     [Header("生成根节点")]
     [SerializeField] private Transform levelRoot;
@@ -18,6 +13,10 @@ public class RepairLevelBuilder : MonoBehaviour
     [SerializeField] private bool buildOnStart = true;
 
     private readonly List<GameObject> generatedObjects = new List<GameObject>();
+
+    private RepairManager currentManager;
+
+    public RepairManager CurrentManager => currentManager;
 
     private void Start()
     {
@@ -35,6 +34,8 @@ public class RepairLevelBuilder : MonoBehaviour
     public void BuildLevel()
     {
         ClearLevel();
+
+        currentManager = null;
 
         if (levelData == null)
         {
@@ -81,7 +82,7 @@ public class RepairLevelBuilder : MonoBehaviour
     {
         if (levelData.backgroundSprite == null) return;
 
-        GameObject bgObj = new GameObject("Background");
+        GameObject bgObj = new GameObject("FullBackground");
         bgObj.transform.SetParent(levelRoot);
         bgObj.transform.position = levelData.backgroundPosition;
 
@@ -111,16 +112,6 @@ public class RepairLevelBuilder : MonoBehaviour
                 slotRoot.transform
             );
 
-            GameObject repairedObj = CreateSpriteObject(
-                "Repaired_" + point.id,
-                point.repairedSprite,
-                point.slotPosition,
-                point.repairedSortingOrder,
-                slotRoot.transform
-            );
-
-            repairedObj.SetActive(false);
-
             GameObject dragObj = CreateSpriteObject(
                 "DragPiece_" + point.id,
                 point.dragPieceSprite,
@@ -129,31 +120,15 @@ public class RepairLevelBuilder : MonoBehaviour
                 levelRoot
             );
 
-            if (point.addPolygonCollider )
+            AddColliderByType(dragObj, point.colliderType);
+
+            SpriteOutlineHighlighter highlighter = null;
+
+            if (point.enableOutline)
             {
-                if (dragObj.GetComponent<Collider2D>() == null)
-                {
-                    dragObj.AddComponent<PolygonCollider2D>();
-                }
+                highlighter = dragObj.AddComponent<SpriteOutlineHighlighter>();
+                highlighter.InitConfig(point.outlineColor, point.outlineSize);
             }
-
-            //PieceIdentity identity = dragObj.AddComponent<PieceIdentity>();
-            //SetPieceId(identity, point.id);
-
-            //DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
-
-            //RepairSlot slot = slotRoot.AddComponent<RepairSlot>();
-
-            //SetRepairSlotData(
-            //    slot,
-            //    point.id,
-            //    point.snapDistance,
-            //    grayObj,
-            //    repairedObj,
-            //    slotRoot.transform
-            //);
-
-            //SetDraggableTarget(draggable, slot);
 
             PieceIdentity identity = dragObj.AddComponent<PieceIdentity>();
             identity.Init(point.id);
@@ -163,12 +138,11 @@ public class RepairLevelBuilder : MonoBehaviour
                 point.id,
                 point.snapDistance,
                 grayObj,
-                repairedObj,
                 slotRoot.transform
             );
 
             DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
-            draggable.Init(slot, Camera.main);
+            draggable.Init(slot, Camera.main, highlighter);
         }
     }
 
@@ -176,7 +150,9 @@ public class RepairLevelBuilder : MonoBehaviour
     {
         GameObject managerObj = new GameObject("RepairManager");
         managerObj.transform.SetParent(levelRoot);
-        managerObj.AddComponent<RepairManager>();
+
+        currentManager = managerObj.AddComponent<RepairManager>();
+
         generatedObjects.Add(managerObj);
     }
 
@@ -201,63 +177,40 @@ public class RepairLevelBuilder : MonoBehaviour
         return obj;
     }
 
-    private void SetPieceId(PieceIdentity identity, string id)
+    private void AddColliderByType(GameObject obj, RepairColliderType colliderType)
     {
-        var field = typeof(PieceIdentity).GetField(
-            "pieceId",
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance
-        );
+        if (obj == null) return;
 
-        if (field != null)
+        Collider2D oldCollider = obj.GetComponent<Collider2D>();
+
+        if (oldCollider != null)
         {
-            field.SetValue(identity, id);
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                DestroyImmediate(oldCollider);
+            }
+            else
+            {
+                Destroy(oldCollider);
+            }
+#else
+            Destroy(oldCollider);
+#endif
         }
-    }
 
-    private void SetDraggableTarget(DraggablePiece draggable, RepairSlot slot)
-    {
-        var field = typeof(DraggablePiece).GetField(
-            "targetSlot",
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance
-        );
-
-        if (field != null)
+        switch (colliderType)
         {
-            field.SetValue(draggable, slot);
-        }
-    }
+            case RepairColliderType.None:
+                break;
 
-    private void SetRepairSlotData(
-        RepairSlot slot,
-        string requiredId,
-        float snapDistance,
-        GameObject grayObj,
-        GameObject repairedObj,
-        Transform snapPoint
-    )
-    {
-        System.Type type = typeof(RepairSlot);
+            case RepairColliderType.Box:
+                obj.AddComponent<BoxCollider2D>();
+                break;
 
-        SetPrivateField(type, slot, "requiredPieceId", requiredId);
-        SetPrivateField(type, slot, "snapDistance", snapDistance);
-        SetPrivateField(type, slot, "graySlotObject", grayObj);
-        SetPrivateField(type, slot, "repairedImageObject", repairedObj);
-        SetPrivateField(type, slot, "snapPoint", snapPoint);
-    }
-
-    private void SetPrivateField(System.Type type, object target, string fieldName, object value)
-    {
-        var field = type.GetField(
-            fieldName,
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance
-        );
-
-        if (field != null)
-        {
-            field.SetValue(target, value);
+            case RepairColliderType.Polygon:
+                obj.AddComponent<PolygonCollider2D>();
+                break;
         }
     }
 }

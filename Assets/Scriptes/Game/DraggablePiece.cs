@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
 public class DraggablePiece : MonoBehaviour
@@ -10,6 +11,11 @@ public class DraggablePiece : MonoBehaviour
 
     [Header("目标插槽")]
     [SerializeField] private RepairSlot targetSlot;
+
+    [Header("高亮")]
+    [SerializeField] private SpriteOutlineHighlighter outlineHighlighter;
+    [SerializeField] private bool highlightWhenDragging = true;
+
 
     private Vector3 originPosition;
     private Vector3 dragOffset;
@@ -29,16 +35,26 @@ public class DraggablePiece : MonoBehaviour
             dragCamera = Camera.main;
         }
 
+        if (outlineHighlighter == null)
+        {
+            outlineHighlighter = GetComponent<SpriteOutlineHighlighter>();
+        }
+
         originPosition = transform.position;
     }
 
-    public void Init(RepairSlot slot, Camera camera = null)
+    public void Init(RepairSlot slot, Camera camera = null, SpriteOutlineHighlighter highlighter = null)
     {
         targetSlot = slot;
 
         if (camera != null)
         {
             dragCamera = camera;
+        }
+
+        if (highlighter != null)
+        {
+            outlineHighlighter = highlighter;
         }
     }
 
@@ -49,6 +65,12 @@ public class DraggablePiece : MonoBehaviour
         Vector3 mouseWorldPos = GetMouseWorldPosition();
         dragOffset = transform.position - mouseWorldPos;
         isDragging = true;
+
+
+        if (highlightWhenDragging && outlineHighlighter != null)
+        {
+            outlineHighlighter.Show();
+        }
 
         // 拖拽物体显示在前面一点，避免被遮挡
         Vector3 pos = transform.position;
@@ -72,6 +94,11 @@ public class DraggablePiece : MonoBehaviour
         if (isCompleted) return;
 
         isDragging = false;
+
+        if (highlightWhenDragging && outlineHighlighter != null)
+        {
+            outlineHighlighter.Hide();
+        }
 
         if (targetSlot != null && targetSlot.CanRepair(this))
         {
@@ -99,6 +126,11 @@ public class DraggablePiece : MonoBehaviour
     private void CompleteRepair()
     {
         isCompleted = true;
+
+        if (highlightWhenDragging && outlineHighlighter != null)
+        {
+            outlineHighlighter.Hide();
+        }
 
         if (targetSlot != null)
         {
