@@ -13,6 +13,19 @@ public class RepairSlot : MonoBehaviour
     [Header("吸附点")]
     [SerializeField] private Transform snapPoint;
 
+    public Vector3 SnapPosition
+    {
+        get
+        {
+            if (snapPoint != null)
+            {
+                return snapPoint.position;
+            }
+
+            return transform.position;
+        }
+    }
+
     private bool isRepaired;
 
     public bool IsRepaired => isRepaired;
@@ -70,12 +83,12 @@ public class RepairSlot : MonoBehaviour
 
         isRepaired = true;
 
-        // 先把拖拽图吸附到灰色底图位置
-        piece.transform.position = new Vector3(
-            snapPoint.position.x,
-            snapPoint.position.y,
-            piece.transform.position.z
-        );
+        //// 先把拖拽图吸附到灰色底图位置
+        //piece.transform.position = new Vector3(
+        //    snapPoint.position.x,
+        //    snapPoint.position.y,
+        //    piece.transform.position.z
+        //);
 
         // 隐藏拖拽图
         piece.HidePiece();

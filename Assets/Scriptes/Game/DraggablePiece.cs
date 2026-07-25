@@ -1,28 +1,40 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Collider2D))]
 public class DraggablePiece : MonoBehaviour
 {
-    [Header("拖拽配置")]
+    [Header("目标插槽")]
+    [SerializeField] private RepairSlot targetSlot;
+
+    [Header("拖拽设置")]
     [SerializeField] private Camera dragCamera;
     [SerializeField] private bool returnToOriginWhenFailed = true;
     [SerializeField] private bool disableColliderWhenCompleted = true;
 
-    [Header("目标插槽")]
-    [SerializeField] private RepairSlot targetSlot;
+    [Header("层级设置")]
+    [SerializeField] private float draggingZ = -1f;
+
+    [Header("吸附动画")]
+    [SerializeField] private float snapMoveDuration = 0.22f;
+    [SerializeField] private float snapScalePunch = 1.08f;
+    [SerializeField] private float snapScaleDuration = 0.08f;
+
+    [Header("回退动画")]
+    [SerializeField] private float returnMoveDuration = 0.28f;
 
     [Header("高亮")]
     [SerializeField] private SpriteOutlineHighlighter outlineHighlighter;
     [SerializeField] private bool highlightWhenDragging = true;
 
-
+    private Collider2D selfCollider;
     private Vector3 originPosition;
+    private Vector3 originalScale;
     private Vector3 dragOffset;
+
     private bool isDragging;
     private bool isCompleted;
-
-    private Collider2D selfCollider;
+    private bool isAnimating;
 
     public bool IsCompleted => isCompleted;
 
@@ -41,9 +53,14 @@ public class DraggablePiece : MonoBehaviour
         }
 
         originPosition = transform.position;
+        originalScale = transform.localScale;
     }
 
-    public void Init(RepairSlot slot, Camera camera = null, SpriteOutlineHighlighter highlighter = null)
+    public void Init(
+        RepairSlot slot,
+        Camera camera = null,
+        SpriteOutlineHighlighter highlighter = null
+    )
     {
         targetSlot = slot;
 
@@ -56,42 +73,47 @@ public class DraggablePiece : MonoBehaviour
         {
             outlineHighlighter = highlighter;
         }
+
+        originPosition = transform.position;
+        originalScale = transform.localScale;
     }
 
     private void OnMouseDown()
     {
         if (isCompleted) return;
+        if (isAnimating) return;
 
         Vector3 mouseWorldPos = GetMouseWorldPosition();
         dragOffset = transform.position - mouseWorldPos;
         isDragging = true;
-
 
         if (highlightWhenDragging && outlineHighlighter != null)
         {
             outlineHighlighter.Show();
         }
 
-        // 拖拽物体显示在前面一点，避免被遮挡
         Vector3 pos = transform.position;
-        pos.z = -1f;
+        pos.z = draggingZ;
         transform.position = pos;
     }
 
     private void OnMouseDrag()
     {
-        if (isCompleted || !isDragging) return;
+        if (!isDragging) return;
+        if (isCompleted) return;
+        if (isAnimating) return;
 
         Vector3 mouseWorldPos = GetMouseWorldPosition();
         Vector3 targetPos = mouseWorldPos + dragOffset;
 
-        targetPos.z = transform.position.z;
+        targetPos.z = draggingZ;
         transform.position = targetPos;
     }
 
     private void OnMouseUp()
     {
         if (isCompleted) return;
+        if (isAnimating) return;
 
         isDragging = false;
 
@@ -102,25 +124,122 @@ public class DraggablePiece : MonoBehaviour
 
         if (targetSlot != null && targetSlot.CanRepair(this))
         {
-            CompleteRepair();
+            StartCoroutine(SnapToSlotRoutine());
         }
         else
         {
             if (returnToOriginWhenFailed)
             {
-                transform.position = originPosition;
+                StartCoroutine(ReturnToOriginRoutine());
             }
         }
     }
 
-    private Vector3 GetMouseWorldPosition()
+    private IEnumerator SnapToSlotRoutine()
     {
-        Vector3 mouseScreenPos = Input.mousePosition;
+        isAnimating = true;
 
-        float distanceToCamera = Mathf.Abs(dragCamera.transform.position.z - transform.position.z);
-        mouseScreenPos.z = distanceToCamera;
+        if (selfCollider != null)
+        {
+            selfCollider.enabled = false;
+        }
 
-        return dragCamera.ScreenToWorldPoint(mouseScreenPos);
+        Vector3 startPos = transform.position;
+
+        Vector3 endPos = targetSlot.SnapPosition;
+        endPos.z = startPos.z;
+
+        yield return MoveRoutine(startPos, endPos, snapMoveDuration);
+
+        // 镶嵌感：轻微放大
+        yield return ScaleRoutine(originalScale, originalScale * snapScalePunch, snapScaleDuration);
+
+        // 回到原大小
+        yield return ScaleRoutine(originalScale * snapScalePunch, originalScale, snapScaleDuration);
+
+        CompleteRepair();
+
+        isAnimating = false;
+    }
+
+    private IEnumerator ReturnToOriginRoutine()
+    {
+        isAnimating = true;
+
+        if (selfCollider != null)
+        {
+            selfCollider.enabled = false;
+        }
+
+        Vector3 startPos = transform.position;
+        Vector3 endPos = originPosition;
+
+        yield return MoveRoutine(startPos, endPos, returnMoveDuration);
+
+        transform.position = originPosition;
+        transform.localScale = originalScale;
+
+        if (!isCompleted && selfCollider != null)
+        {
+            selfCollider.enabled = true;
+        }
+
+        isAnimating = false;
+    }
+
+    private IEnumerator MoveRoutine(Vector3 startPos, Vector3 endPos, float duration)
+    {
+        if (duration <= 0f)
+        {
+            transform.position = endPos;
+            yield break;
+        }
+
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float t = Mathf.Clamp01(timer / duration);
+
+            t = EaseOutCubic(t);
+
+            transform.position = Vector3.LerpUnclamped(startPos, endPos, t);
+
+            yield return null;
+        }
+
+        transform.position = endPos;
+    }
+
+    private IEnumerator ScaleRoutine(Vector3 startScale, Vector3 endScale, float duration)
+    {
+        if (duration <= 0f)
+        {
+            transform.localScale = endScale;
+            yield break;
+        }
+
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float t = Mathf.Clamp01(timer / duration);
+
+            t = EaseOutCubic(t);
+
+            transform.localScale = Vector3.LerpUnclamped(startScale, endScale, t);
+
+            yield return null;
+        }
+
+        transform.localScale = endScale;
+    }
+
+    private float EaseOutCubic(float t)
+    {
+        return 1f - Mathf.Pow(1f - t, 3f);
     }
 
     private void CompleteRepair()
@@ -131,6 +250,8 @@ public class DraggablePiece : MonoBehaviour
         {
             outlineHighlighter.Hide();
         }
+
+        transform.localScale = originalScale;
 
         if (targetSlot != null)
         {
@@ -146,5 +267,29 @@ public class DraggablePiece : MonoBehaviour
     public void HidePiece()
     {
         gameObject.SetActive(false);
+    }
+
+    private Vector3 GetMouseWorldPosition()
+    {
+        if (dragCamera == null)
+        {
+            dragCamera = Camera.main;
+        }
+
+        Vector3 mouseScreenPos = Input.mousePosition;
+
+        float zDistance = 0f;
+
+        if (dragCamera != null)
+        {
+            zDistance = Mathf.Abs(dragCamera.transform.position.z - transform.position.z);
+        }
+
+        mouseScreenPos.z = zDistance;
+
+        Vector3 worldPos = dragCamera.ScreenToWorldPoint(mouseScreenPos);
+        worldPos.z = transform.position.z;
+
+        return worldPos;
     }
 }
