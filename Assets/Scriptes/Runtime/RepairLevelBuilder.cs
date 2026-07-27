@@ -12,11 +12,35 @@ public class RepairLevelBuilder : MonoBehaviour
     [Header("是否启动时自动生成")]
     [SerializeField] private bool buildOnStart = true;
 
+    [Header("擦灰材质")]
+    [SerializeField] private Material dustWipeMaterial;
+
+    [Header("UI 抹布")]
+    [SerializeField] private WiperUITool sceneWiperTool;
+
     private readonly List<GameObject> generatedObjects = new List<GameObject>();
 
     private RepairManager currentManager;
 
+
+
     public RepairManager CurrentManager => currentManager;
+
+    private DustWipeController currentDustController;
+    private WiperUITool currentWiperTool;
+
+
+    private GameObject repairBackgroundObj;
+    private GameObject cleanBackgroundObj;
+    private GameObject dustLayerObj;
+
+    private readonly List<RepairSlot> currentSlots = new List<RepairSlot>();
+
+    public GameObject RepairBackgroundObj => repairBackgroundObj;
+    public GameObject CleanBackgroundObj => cleanBackgroundObj;
+
+
+
 
     private void Start()
     {
@@ -36,6 +60,13 @@ public class RepairLevelBuilder : MonoBehaviour
         ClearLevel();
 
         currentManager = null;
+        currentDustController = null;
+
+        repairBackgroundObj = null;
+        cleanBackgroundObj = null;
+        dustLayerObj = null;
+
+        currentSlots.Clear();
 
         if (levelData == null)
         {
@@ -49,7 +80,9 @@ public class RepairLevelBuilder : MonoBehaviour
             levelRoot = rootObj.transform;
         }
 
-        BuildBackground();
+        BuildRepairBackground();
+        BuildCleanBackground();
+        BuildDustLayer();
         BuildRepairPoints();
         BuildManager();
     }
@@ -78,19 +111,56 @@ public class RepairLevelBuilder : MonoBehaviour
         generatedObjects.Clear();
     }
 
-    private void BuildBackground()
+    //private void BuildBackground()
+    //{
+    //    if (levelData.backgroundSprite == null) return;
+
+    //    GameObject bgObj = new GameObject("FullBackground");
+    //    bgObj.transform.SetParent(levelRoot);
+    //    bgObj.transform.position = levelData.backgroundPosition;
+
+    //    SpriteRenderer sr = bgObj.AddComponent<SpriteRenderer>();
+    //    sr.sprite = levelData.backgroundSprite;
+    //    sr.sortingOrder = levelData.backgroundSortingOrder;
+
+    //    generatedObjects.Add(bgObj);
+    //}
+
+
+    private void BuildRepairBackground()
     {
-        if (levelData.backgroundSprite == null) return;
+        if (levelData.repairBackgroundSprite == null) return;
 
-        GameObject bgObj = new GameObject("FullBackground");
-        bgObj.transform.SetParent(levelRoot);
-        bgObj.transform.position = levelData.backgroundPosition;
+        repairBackgroundObj = CreateSpriteObject(
+            "RepairBackground",
+            levelData.repairBackgroundSprite,
+            levelData.backgroundPosition,
+            levelData.repairBackgroundSortingOrder,
+            levelRoot
+        );
 
-        SpriteRenderer sr = bgObj.AddComponent<SpriteRenderer>();
-        sr.sprite = levelData.backgroundSprite;
-        sr.sortingOrder = levelData.backgroundSortingOrder;
+        repairBackgroundObj.transform.localScale = levelData.backgroundScale;
 
-        generatedObjects.Add(bgObj);
+        repairBackgroundObj.SetActive(true);
+    }
+
+
+    private void BuildCleanBackground()
+    {
+        if (levelData.cleanBackgroundSprite == null) return;
+
+        cleanBackgroundObj = CreateSpriteObject(
+            "CleanBackground",
+            levelData.cleanBackgroundSprite,
+            levelData.backgroundPosition,
+            levelData.cleanBackgroundSortingOrder,
+            levelRoot
+        );
+
+        cleanBackgroundObj.transform.localScale = levelData.backgroundScale;
+
+        // 初始隐藏，修复完成后再显示
+        cleanBackgroundObj.SetActive(false);
     }
 
     private void BuildRepairPoints()
@@ -141,6 +211,8 @@ public class RepairLevelBuilder : MonoBehaviour
                 slotRoot.transform
             );
 
+            currentSlots.Add(slot);
+
             DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
             draggable.Init(slot, Camera.main, highlighter);
         }
@@ -152,6 +224,14 @@ public class RepairLevelBuilder : MonoBehaviour
         managerObj.transform.SetParent(levelRoot);
 
         currentManager = managerObj.AddComponent<RepairManager>();
+
+
+        if (sceneWiperTool == null)
+        {
+            sceneWiperTool = FindObjectOfType<WiperUITool>(true);
+        }
+        currentWiperTool = sceneWiperTool;
+        currentManager.Init( currentSlots, currentDustController,currentWiperTool, repairBackgroundObj,cleanBackgroundObj);
 
         generatedObjects.Add(managerObj);
     }
@@ -213,4 +293,51 @@ public class RepairLevelBuilder : MonoBehaviour
                 break;
         }
     }
+
+    private void BuildDustLayer()
+    {
+        if (levelData.dustSprite == null) return;
+
+        GameObject dustObj = CreateSpriteObject(
+            "DustLayer",
+            levelData.dustSprite,
+            levelData.backgroundPosition,
+            levelData.dustSortingOrder,
+            levelRoot
+        );
+
+        currentDustController = dustObj.AddComponent<DustWipeController>();
+        currentDustController.InitConfig(
+            dustWipeMaterial,
+            levelData.wipeBrushSize,
+            levelData.wipeCompletePercent
+        );
+
+        // 初始隐藏灰尘，修复完成后再显示
+        currentDustController.DisableWiping();
+    }
+
+    //private void BuildWiperTool()
+    //{
+    //    if (currentDustController == null) return;
+    //    if (wiperSprite == null)
+    //    {
+    //        Debug.LogWarning("没有配置抹布 Sprite，擦灰阶段将没有抹布");
+    //        return;
+    //    }
+
+    //    GameObject wiperObj = CreateSpriteObject(
+    //        "WiperTool",
+    //        wiperSprite,
+    //        wiperStartPosition,
+    //        wiperSortingOrder,
+    //        levelRoot
+    //    );
+
+    //    BoxCollider2D collider = wiperObj.AddComponent<BoxCollider2D>();
+
+    //    currentWiperTool = wiperObj.AddComponent<WiperTool>();
+    //    currentWiperTool.Init(currentDustController, Camera.main);
+    //}
+
 }

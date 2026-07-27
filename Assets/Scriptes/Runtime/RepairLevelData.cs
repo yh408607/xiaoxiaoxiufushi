@@ -11,13 +11,32 @@ public class RepairLevelData : ScriptableObject
     [Header("关卡基础信息")]
     public string levelName = "New Repair Level";
 
-    [Header("完整参考底图 / 实际底图")]
-    public Sprite backgroundSprite;
+    [Header("底图公共位置")]
     public Vector3 backgroundPosition = Vector3.zero;
-    public int backgroundSortingOrder = -10;
+    public Vector3 backgroundScale = Vector3.one;
+
+    [Header("修复阶段底图")]
+    public Sprite repairBackgroundSprite;
+    public int repairBackgroundSortingOrder = -10;
+
+    [Header("干净底图")]
+    public Sprite cleanBackgroundSprite;
+    public int cleanBackgroundSortingOrder = -10;
+
+    [Header("灰尘擦拭")]
+    public Sprite dustSprite;
+    public int dustSortingOrder = 10;
+
+    [Range(0f, 1f)]
+    public float wipeCompletePercent = 0.9f;
+
+    public float wipeBrushSize = 0.08f;
+
 
     [Header("修复点列表")]
     public List<RepairPointData> repairPoints = new List<RepairPointData>();
+
+
 }
 
 public enum RepairColliderType

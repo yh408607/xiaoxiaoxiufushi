@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: level_1
   m_EditorClassIdentifier: 
   levelName: level_1
-  backgroundSprite: {fileID: 21300000, guid: e4ec5dadb0110b24e957ca2b3f497bc6, type: 3}
   backgroundPosition: {x: -0.49, y: -0.42, z: 0}
-  backgroundSortingOrder: -10
+  backgroundScale: {x: 1, y: 1, z: 1}
+  repairBackgroundSprite: {fileID: 21300000, guid: e4ec5dadb0110b24e957ca2b3f497bc6, type: 3}
+  repairBackgroundSortingOrder: -10
+  cleanBackgroundSprite: {fileID: 21300000, guid: 97a40ec0f33cd53408a5c8e842ee8b07, type: 3}
+  cleanBackgroundSortingOrder: -10
+  dustSprite: {fileID: 21300000, guid: f3a66a098a2238b408567f58efb17042, type: 3}
+  dustSortingOrder: 0
+  wipeCompletePercent: 0.9
+  wipeBrushSize: 0.08
   repairPoints:
   - id: piece_01
     graySlotSprite: {fileID: 21300000, guid: 6f648dd4e8724c3479f2bb97863c560f, type: 3}

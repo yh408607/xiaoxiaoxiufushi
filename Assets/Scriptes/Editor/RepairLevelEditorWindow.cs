@@ -94,31 +94,85 @@ public class RepairLevelEditorWindow : EditorWindow
             levelData.levelName
         );
 
-        EditorGUILayout.Space(4);
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("底图公共变换", EditorStyles.boldLabel);
 
-        EditorGUILayout.LabelField("完整参考底图 / 实际底图", EditorStyles.boldLabel);
+        levelData.backgroundPosition = EditorGUILayout.Vector3Field(
+            "公共位置",
+            levelData.backgroundPosition
+        );
 
-        levelData.backgroundSprite = (Sprite)EditorGUILayout.ObjectField(
-            "完整底图",
-            levelData.backgroundSprite,
+        levelData.backgroundScale = EditorGUILayout.Vector3Field(
+            "公共缩放",
+            levelData.backgroundScale
+        );
+
+        EditorGUILayout.HelpBox(
+            "修复阶段底图、干净底图、灰尘图层都会使用这个公共位置和缩放，确保三者完全重合。",
+            MessageType.Info
+        );
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("修复阶段底图", EditorStyles.boldLabel);
+
+        levelData.repairBackgroundSprite = (Sprite)EditorGUILayout.ObjectField(
+            "修复阶段底图",
+            levelData.repairBackgroundSprite,
             typeof(Sprite),
             false
         );
 
-        levelData.backgroundPosition = EditorGUILayout.Vector3Field(
-            "底图位置",
-            levelData.backgroundPosition
+        levelData.repairBackgroundSortingOrder = EditorGUILayout.IntField(
+            "修复底图层级",
+            levelData.repairBackgroundSortingOrder
         );
 
-        levelData.backgroundSortingOrder = EditorGUILayout.IntField(
-            "底图层级",
-            levelData.backgroundSortingOrder
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("干净底图", EditorStyles.boldLabel);
+
+        levelData.cleanBackgroundSprite = (Sprite)EditorGUILayout.ObjectField(
+            "干净底图",
+            levelData.cleanBackgroundSprite,
+            typeof(Sprite),
+            false
         );
 
-        EditorGUILayout.HelpBox(
-            "灰色遮挡图需要对齐这张完整底图的对应区域。修复成功后隐藏灰色遮挡图，底图自然露出。",
-            MessageType.None
+        levelData.cleanBackgroundSortingOrder = EditorGUILayout.IntField(
+            "干净底图层级",
+            levelData.cleanBackgroundSortingOrder
         );
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("灰尘擦拭", EditorStyles.boldLabel);
+
+        levelData.dustSprite = (Sprite)EditorGUILayout.ObjectField(
+            "灰尘图层",
+            levelData.dustSprite,
+            typeof(Sprite),
+            false
+        );
+
+        levelData.dustSortingOrder = EditorGUILayout.IntField(
+            "灰尘层级",
+            levelData.dustSortingOrder
+        );
+
+        levelData.wipeCompletePercent = EditorGUILayout.Slider(
+            "完成擦除比例",
+            levelData.wipeCompletePercent,
+            0f,
+            1f
+        );
+
+        levelData.wipeBrushSize = EditorGUILayout.FloatField(
+            "擦拭笔刷大小",
+            levelData.wipeBrushSize
+        );
+
+        if (levelData.wipeBrushSize < 0.001f)
+        {
+            levelData.wipeBrushSize = 0.001f;
+        }
 
         EditorGUILayout.EndVertical();
     }
@@ -472,6 +526,31 @@ public class RepairLevelEditorWindow : EditorWindow
             {
                 point.dragStartPosition = dragObj.transform.position;
                 saveCount++;
+            }
+        }
+
+        GameObject dustObj = GameObject.Find("DustLayer");
+
+        if (dustObj != null)
+        {
+            levelData.backgroundPosition = dustObj.transform.position;
+        }
+
+        GameObject repairBgObj = GameObject.Find("RepairBackground");
+
+        if (repairBgObj != null)
+        {
+            levelData.backgroundPosition = repairBgObj.transform.position;
+            levelData.backgroundScale = repairBgObj.transform.localScale;
+        }
+        else
+        {
+            GameObject cleanBgObj = GameObject.Find("CleanBackground");
+
+            if (cleanBgObj != null)
+            {
+                levelData.backgroundPosition = cleanBgObj.transform.position;
+                levelData.backgroundScale = cleanBgObj.transform.localScale;
             }
         }
 

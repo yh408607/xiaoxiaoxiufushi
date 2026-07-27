@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 public class RepairManager : MonoBehaviour
@@ -11,28 +12,107 @@ public class RepairManager : MonoBehaviour
 
     private int repairedCount;
 
+    public event Action OnRepairStageCompleted;
+    public event Action OnLevelCompleted;
+
+    private DustWipeController dustWipeController;
+    private WiperUITool wiperTool;
+
+    private GameObject repairBackgroundObject;
+    private GameObject cleanBackgroundObject;
+
     private void Awake()
     {
         if (autoFindSlots)
         {
-            slots.Clear();
-            slots.AddRange(FindObjectsOfType<RepairSlot>());
+            RefreshSlots();
         }
     }
 
     private void OnEnable()
     {
+        SubscribeSlots();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeSlots();
+
+        if (dustWipeController != null)
+        {
+            dustWipeController.OnWipeCompleted -= HandleWipeCompleted;
+        }
+    }
+
+    private void Start()
+    {
+        ResetProgress();
+    }
+
+    public void Init( List<RepairSlot> repairSlots, DustWipeController dustController, WiperUITool wiper, GameObject repairBackground, GameObject cleanBackground)
+    {
+        UnsubscribeSlots();
+
+        slots = repairSlots;
+        dustWipeController = dustController;
+        wiperTool = wiper;
+
+        repairBackgroundObject = repairBackground;
+        cleanBackgroundObject = cleanBackground;
+
+        repairedCount = 0;
+
+        SubscribeSlots();
+
+        if (dustWipeController != null)
+        {
+            dustWipeController.OnWipeCompleted -= HandleWipeCompleted;
+            dustWipeController.OnWipeCompleted += HandleWipeCompleted;
+            dustWipeController.DisableWiping();
+        }
+
+        if (wiperTool != null)
+        {
+            wiperTool.Init(dustWipeController, Camera.main);
+            wiperTool.DisableWiper();
+        }
+
+        // 初始状态：修复底图显示，干净底图隐藏
+        if (repairBackgroundObject != null)
+        {
+            repairBackgroundObject.SetActive(true);
+        }
+
+        if (cleanBackgroundObject != null)
+        {
+            cleanBackgroundObject.SetActive(false);
+        }
+    }
+
+    private void RefreshSlots()
+    {
+        slots.Clear();
+        slots.AddRange(FindObjectsOfType<RepairSlot>());
+    }
+
+    private void SubscribeSlots()
+    {
+        if (slots == null) return;
+
         foreach (RepairSlot slot in slots)
         {
             if (slot != null)
             {
+                slot.OnRepaired -= HandleSlotRepaired;
                 slot.OnRepaired += HandleSlotRepaired;
             }
         }
     }
 
-    private void OnDisable()
+    private void UnsubscribeSlots()
     {
+        if (slots == null) return;
+
         foreach (RepairSlot slot in slots)
         {
             if (slot != null)
@@ -42,9 +122,11 @@ public class RepairManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void ResetProgress()
     {
         repairedCount = 0;
+
+        if (slots == null) return;
 
         foreach (RepairSlot slot in slots)
         {
@@ -63,7 +145,58 @@ public class RepairManager : MonoBehaviour
 
         if (repairedCount >= slots.Count)
         {
-            Debug.Log("所有缺口修复完成！");
+            Debug.Log("所有碎片修复完成，进入擦灰阶段");
+
+            OnRepairStageCompleted?.Invoke();
+
+            StartWipeStage();
         }
+    }
+
+    private void StartWipeStage()
+    {
+        // 1. 隐藏修复阶段底图
+        if (repairBackgroundObject != null)
+        {
+            repairBackgroundObject.SetActive(false);
+        }
+
+        // 2. 显示干净底图
+        if (cleanBackgroundObject != null)
+        {
+            cleanBackgroundObject.SetActive(true);
+        }
+
+        // 3. 开启灰尘层
+        if (dustWipeController == null)
+        {
+            Debug.LogWarning("没有灰尘擦拭控制器，直接完成关卡");
+            OnLevelCompleted?.Invoke();
+            return;
+        }
+
+        dustWipeController.EnableWiping();
+
+        // 4. 开启 UI 抹布
+        if (wiperTool != null)
+        {
+            wiperTool.EnableWiper();
+        }
+        else
+        {
+            Debug.LogWarning("没有找到 UI 抹布 WiperUITool");
+        }
+    }
+
+    private void HandleWipeCompleted()
+    {
+        Debug.Log("擦灰完成，关卡完成");
+
+        if (wiperTool != null)
+        {
+            wiperTool.DisableWiper();
+        }
+
+        OnLevelCompleted?.Invoke();
     }
 }
