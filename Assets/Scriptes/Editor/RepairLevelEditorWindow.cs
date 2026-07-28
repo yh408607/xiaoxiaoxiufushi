@@ -174,6 +174,35 @@ public class RepairLevelEditorWindow : EditorWindow
             levelData.wipeBrushSize = 0.001f;
         }
 
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("评分时间", EditorStyles.boldLabel);
+
+        levelData.threeStarTime = EditorGUILayout.FloatField(
+            "3星时间/秒",
+            levelData.threeStarTime
+        );
+
+        levelData.twoStarTime = EditorGUILayout.FloatField(
+            "2星时间/秒",
+            levelData.twoStarTime
+        );
+
+        if (levelData.threeStarTime < 1f)
+        {
+            levelData.threeStarTime = 1f;
+        }
+
+        if (levelData.twoStarTime < levelData.threeStarTime)
+        {
+            levelData.twoStarTime = levelData.threeStarTime;
+        }
+
+        EditorGUILayout.HelpBox(
+            "用时 <= 3星时间：3星；用时 <= 2星时间：2星；超过2星时间：1星。",
+            MessageType.Info
+        );
+
+
         EditorGUILayout.EndVertical();
     }
 

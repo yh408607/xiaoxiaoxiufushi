@@ -27,10 +27,15 @@ public class RepairLevelData : ScriptableObject
     public Sprite dustSprite;
     public int dustSortingOrder = 10;
 
+
     [Range(0f, 1f)]
     public float wipeCompletePercent = 0.9f;
 
     public float wipeBrushSize = 0.08f;
+
+    [Header("评分时间")]
+    public float threeStarTime = 60f;
+    public float twoStarTime = 120f;
 
 
     [Header("修复点列表")]

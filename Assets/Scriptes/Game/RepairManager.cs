@@ -21,6 +21,14 @@ public class RepairManager : MonoBehaviour
     private GameObject repairBackgroundObject;
     private GameObject cleanBackgroundObject;
 
+    private LevelScoreTimer scoreTimer;
+    private LevelScoreResult lastScoreResult;
+
+    public LevelScoreResult LastScoreResult => lastScoreResult;
+
+    public event Action<LevelScoreResult> OnLevelCompletedWithScore;
+
+
     private void Awake()
     {
         if (autoFindSlots)
@@ -49,7 +57,7 @@ public class RepairManager : MonoBehaviour
         ResetProgress();
     }
 
-    public void Init( List<RepairSlot> repairSlots, DustWipeController dustController, WiperUITool wiper, GameObject repairBackground, GameObject cleanBackground)
+    public void Init( List<RepairSlot> repairSlots, DustWipeController dustController, WiperUITool wiper, GameObject repairBackground, GameObject cleanBackground,    float threeStarTime, float twoStarTime)
     {
         UnsubscribeSlots();
 
@@ -87,6 +95,19 @@ public class RepairManager : MonoBehaviour
         {
             cleanBackgroundObject.SetActive(false);
         }
+
+        scoreTimer = GetComponent<LevelScoreTimer>();
+
+        if (scoreTimer == null)
+        {
+            scoreTimer = gameObject.AddComponent<LevelScoreTimer>();
+        }
+
+        scoreTimer.Init(threeStarTime, twoStarTime);
+        scoreTimer.StartTimer();
+
+        //todo加载UI，绑定UI事件
+
     }
 
     private void RefreshSlots()
@@ -197,6 +218,16 @@ public class RepairManager : MonoBehaviour
             wiperTool.DisableWiper();
         }
 
+        if (scoreTimer != null)
+        {
+            lastScoreResult = scoreTimer.StopTimer();
+        }
+
+        Debug.Log(
+            $"关卡用时：{lastScoreResult.FormattedTime}，评分：{lastScoreResult.stars}星"
+        );
+
+        OnLevelCompletedWithScore?.Invoke(lastScoreResult);
         OnLevelCompleted?.Invoke();
     }
 }

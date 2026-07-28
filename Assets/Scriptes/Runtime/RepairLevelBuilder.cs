@@ -231,7 +231,7 @@ public class RepairLevelBuilder : MonoBehaviour
             sceneWiperTool = FindObjectOfType<WiperUITool>(true);
         }
         currentWiperTool = sceneWiperTool;
-        currentManager.Init( currentSlots, currentDustController,currentWiperTool, repairBackgroundObj,cleanBackgroundObj);
+        currentManager.Init( currentSlots, currentDustController,currentWiperTool, repairBackgroundObj,cleanBackgroundObj, levelData.threeStarTime, levelData.twoStarTime);
 
         generatedObjects.Add(managerObj);
     }
