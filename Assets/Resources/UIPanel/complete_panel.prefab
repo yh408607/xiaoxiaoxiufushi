@@ -236,8 +236,9 @@ GameObject:
   - component: {fileID: 9157970276052729014}
   - component: {fileID: 8525363166087687961}
   - component: {fileID: 1559710837972773488}
+  - component: {fileID: 4173367367145445222}
   m_Layer: 5
-  m_Name: "\u4FEE\u590D\u5B8C\u6210"
+  m_Name: complete_panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -306,6 +307,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4173367367145445222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2915572029003407173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f72144b08148ad4987a73f037fb7561, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeText: {fileID: 0}
+  starImages: []
+  starOnSprite: {fileID: 0}
+  starOffSprite: {fileID: 0}
 --- !u!1 &6433979326407183003
 GameObject:
   m_ObjectHideFlags: 0

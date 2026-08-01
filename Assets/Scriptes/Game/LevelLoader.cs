@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-public class LevelLoader : MonoBehaviour
+public class LevelLoader 
 {
     [Header("生成器")]
     [SerializeField] private RepairLevelBuilder builder;
@@ -11,17 +12,11 @@ public class LevelLoader : MonoBehaviour
     [Header("Resources 路径")]
     [SerializeField] private string resourcesFolder = "RepairLevels";
 
-    private void Awake()
-    {
-        if (builder == null)
-        {
-            builder = FindObjectOfType<RepairLevelBuilder>();
-        }
-    }
 
-    private void Start()
+    public void Init()
     {
-        LoadLevel(defaultLevelName);
+        builder = GameObject.FindObjectOfType<RepairLevelBuilder>();
+
     }
 
     public void LoadLevel(string levelName)
@@ -39,8 +34,25 @@ public class LevelLoader : MonoBehaviour
         builder.SetLevelData(data);
         builder.BuildLevel();
 
-        Debug.Log("关卡加载成功：" + levelName);
+        
 
 
+       // Debug.Log("关卡加载成功：" + levelName);
+    }
+
+
+
+
+    public void RegisterLevelCompletedCallback(Action<LevelScoreResult> callback)
+    {
+        if (builder.CurrentManager != null)
+        {
+            builder.CurrentManager.OnLevelCompletedWithScore -= callback;
+            builder.CurrentManager.OnLevelCompletedWithScore += callback;
+        }
+        else
+        {
+            Debug.LogError("builder.CurrentManager 为null");
+        }
     }
 }

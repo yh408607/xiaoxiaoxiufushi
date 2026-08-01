@@ -46,9 +46,9 @@ public class TestScene : MonoBehaviour
         if (shouye && Input.GetMouseButtonDown(0))
         {
             Debug.Log(1111);
-           // shouye = false;
-          //  shouyePanel.SetActive(shouye);
-           // MainPanal.SetActive(true);
+            shouye = false;
+            shouyePanel.SetActive(shouye);
+            MainPanal.SetActive(true);
             shouyeanimator.SetBool("is Mousedown", true);
         }
        
