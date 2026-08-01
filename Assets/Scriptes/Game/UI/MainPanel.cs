@@ -56,6 +56,8 @@ public class MainPanel : BaseUI
             case "Sources":
                 break;
             case "JiaZhangZhongXing":
+                UIPanelManager.Instance.ShownPanel("UIPanel/ParentVerify_Panel");
+
                 break;
             case "GouMaiZhongXing":
                 break;
