@@ -41,10 +41,10 @@ public class SelectLevelPanel : BaseUI
 
 
         //解锁后才能加载关卡
-
+        GameManager.Instance.lagerd_level_name = leveName;
         var temp = UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
         temp.Show(leveName);
-        GameManager.Instance.lagerd_level_name = leveName;
+
         this.Hide();
 
     }

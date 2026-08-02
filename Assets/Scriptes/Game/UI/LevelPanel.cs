@@ -21,6 +21,8 @@ public class LevelPanel : BaseUI
         {
             Debug.LogError("No Level_item components found in children.");
         }
+
+        m_UiUitil.Get("btn_return").AddListenrforBtn(onbtnReturnCallBack);
     }
 
     public override void Show()
@@ -35,6 +37,11 @@ public class LevelPanel : BaseUI
         }
     }
 
+    private void onbtnReturnCallBack()
+    {
+        UIPanelManager.Instance.ShownPanel("UIPanel/select_level_panel");
+        Hide();
+    }
 
 }
 
