@@ -17,6 +17,7 @@ public class RepairManager : MonoBehaviour
 
     private DustWipeController dustWipeController;
     private WiperUITool wiperTool;
+    private FingerDragUI fingerDragUI;
 
     private GameObject repairBackgroundObject;
     private GameObject cleanBackgroundObject;
@@ -57,13 +58,15 @@ public class RepairManager : MonoBehaviour
         ResetProgress();
     }
 
-    public void Init( List<RepairSlot> repairSlots, DustWipeController dustController, WiperUITool wiper, GameObject repairBackground, GameObject cleanBackground,    float threeStarTime, float twoStarTime)
+    public void Init( List<RepairSlot> repairSlots, DustWipeController dustController, WiperUITool wiper,FingerDragUI fingerDragUI, GameObject repairBackground, GameObject cleanBackground,    float threeStarTime, float twoStarTime)
     {
         UnsubscribeSlots();
 
         slots = repairSlots;
         dustWipeController = dustController;
         wiperTool = wiper;
+        this.fingerDragUI = fingerDragUI;
+
 
         repairBackgroundObject = repairBackground;
         cleanBackgroundObject = cleanBackground;
@@ -206,6 +209,12 @@ public class RepairManager : MonoBehaviour
         else
         {
             Debug.LogWarning("没有找到 UI 抹布 WiperUITool");
+        }
+
+        //隐藏fingerUI
+        if (fingerDragUI != null)
+        {
+            fingerDragUI.Hide();
         }
     }
 

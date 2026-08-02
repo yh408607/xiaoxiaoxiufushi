@@ -44,7 +44,7 @@ public class SelectLevelPanel : BaseUI
 
         var temp = UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
         temp.Show(leveName);
-
+        GameManager.Instance.lagerd_level_name = leveName;
         this.Hide();
 
     }

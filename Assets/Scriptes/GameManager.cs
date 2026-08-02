@@ -7,70 +7,101 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourInstanceExample<GameManager>
 {
-    public string lagerd_level;
-    public string small_level;
+    /// <summary>
+    /// å¤§å…³å¡çš„åç§°
+    /// </summary>
+    public string lagerd_level_name;
+    /// <summary>
+    /// å°å…³å¡çš„åç§°
+    /// </summary>
+    public string small_level_Name;
 
     public LevelLoader levelLoader;
+
+    private string currenSceneName;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/shouyePanel");
-        UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/main_Panal");
-        UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/select_level_panel");
-        UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/level_panel");
-        UIPanelManager.Instance.HideAllPanel();
+        // å…ˆæ³¨å†Œâ€œåœºæ™¯åŠ è½½å®Œæˆâ€å›è°ƒ
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        currenSceneName = "MainScene";
+        SceneManager.LoadScene(currenSceneName);
 
-        UIPanelManager.Instance.ShownPanel("UIPanel/shouyePanel");
+        //åŠ è½½è¯„åˆ†æ•°æ®
+        LevelStarSystem.Instance.Init();
     }
 
-
+   
     public void LoadLevel(string levelName)
     {
-        small_level = levelName;
+        small_level_Name = levelName;
 
-        // ÏÈ×¢²á¡°³¡¾°¼ÓÔØÍê³É¡±»Øµ÷
+        // å…ˆæ³¨å†Œâ€œåœºæ™¯åŠ è½½å®Œæˆâ€å›è°ƒ
         SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.LoadScene("LevelScene");
-
-
+        currenSceneName = "LevelScene";
+        SceneManager.LoadScene(currenSceneName);
     }
 
     private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
     {
 
-        // Ö»´¦ÀíÄ¿±ê³¡¾°
-        if (scene.name != "LevelScene")
+        // ç”¨å®Œç«‹åˆ»åæ³¨å†Œï¼Œé¿å…é‡å¤è§¦å‘
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+
+        // åªå¤„ç†ç›®æ ‡åœºæ™¯
+        if (scene.name != currenSceneName)
         {
             return;
         }
 
-        // ÓÃÍêÁ¢¿Ì·´×¢²á£¬±ÜÃâÖØ¸´´¥·¢
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        if (levelLoader == null)
+        switch (currenSceneName)
         {
-            levelLoader = new LevelLoader();
+            case "LevelScene":
+
+                if (levelLoader == null)
+                {
+                    levelLoader = new LevelLoader();
+                }
+
+                levelLoader.Init();
+                levelLoader.LoadLevel(small_level_Name);
+                levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
+
+                break;
+            case "MainScene":
+
+                UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/shouyePanel");
+                UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/main_Panal");
+                UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/select_level_panel");
+                UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/level_panel");
+                UIPanelManager.Instance.HideAllPanel();
+
+                UIPanelManager.Instance.ShownPanel("UIPanel/shouyePanel");
+                break;
+            default:
+                break;
         }
-
-        levelLoader.Init();
-        levelLoader.LoadLevel(small_level);
-
-        levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
     }
 
     private void OnDestroy()
     {
-        // ·ÀÖ¹¶ÔÏóÏú»ÙÊ±²ĞÁô¼àÌı
+        // é˜²æ­¢å¯¹è±¡é”€æ¯æ—¶æ®‹ç•™ç›‘å¬
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnLevelComplete(LevelScoreResult scoreResult)
     {
-        // ´¦Àí¹Ø¿¨Íê³ÉºóµÄÂß¼­£¬ÀıÈçÏÔÊ¾·ÖÊı¡¢½âËøÏÂÒ»¹ØµÈ
+        // å¤„ç†å…³å¡å®Œæˆåçš„é€»è¾‘ï¼Œä¾‹å¦‚æ˜¾ç¤ºåˆ†æ•°ã€è§£é”ä¸‹ä¸€å…³ç­‰
        // UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
-       //ÏÈµÈ¼¸ÃëÔÙÏÔÊ¾¹Ø¿¨Íê³ÉÃæ°å
+       //å…ˆç­‰å‡ ç§’å†æ˜¾ç¤ºå…³å¡å®Œæˆé¢æ¿
         StartCoroutine(ShowLevelCompletePanelAfterDelay(scoreResult, 2f));
+
+        //ä¿å­˜å…³å¡è¯„åˆ†
+        var levelName = lagerd_level_name + "_" + small_level_Name;
+        LevelStarSystem.Instance.SaveLevelResult(levelName, scoreResult, true);
     }
 
     IEnumerator ShowLevelCompletePanelAfterDelay(LevelScoreResult scoreResult, float v)

@@ -18,6 +18,9 @@ public class RepairLevelBuilder : MonoBehaviour
     [Header("UI 抹布")]
     [SerializeField] private WiperUITool sceneWiperTool;
 
+    [Header("手指引导")]
+    [SerializeField] private FingerDragUI fingerDragUI;
+
     private readonly List<GameObject> generatedObjects = new List<GameObject>();
 
     private RepairManager currentManager;
@@ -230,8 +233,14 @@ public class RepairLevelBuilder : MonoBehaviour
         {
             sceneWiperTool = FindObjectOfType<WiperUITool>(true);
         }
+
+        if (fingerDragUI == null)
+        {
+            fingerDragUI = FindObjectOfType<FingerDragUI>(true);
+        }
+
         currentWiperTool = sceneWiperTool;
-        currentManager.Init( currentSlots, currentDustController,currentWiperTool, repairBackgroundObj,cleanBackgroundObj, levelData.threeStarTime, levelData.twoStarTime);
+        currentManager.Init( currentSlots, currentDustController,currentWiperTool, fingerDragUI, repairBackgroundObj,cleanBackgroundObj, levelData.threeStarTime, levelData.twoStarTime);
 
         generatedObjects.Add(managerObj);
     }

@@ -34,13 +34,8 @@ public class LevelLoader
         builder.SetLevelData(data);
         builder.BuildLevel();
 
-        
-
-
        // Debug.Log("关卡加载成功：" + levelName);
     }
-
-
 
 
     public void RegisterLevelCompletedCallback(Action<LevelScoreResult> callback)

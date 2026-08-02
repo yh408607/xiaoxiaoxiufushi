@@ -23,6 +23,18 @@ public class LevelPanel : BaseUI
         }
     }
 
+    public override void Show()
+    {
+        base.Show();
+        if(level_items.Count > 0)
+        {
+            foreach (var item in level_items)
+            {
+                item.Show();
+            }
+        }
+    }
+
 
 }
 

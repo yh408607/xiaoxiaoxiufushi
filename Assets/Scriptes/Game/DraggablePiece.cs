@@ -27,6 +27,12 @@ public class DraggablePiece : MonoBehaviour
     [SerializeField] private SpriteOutlineHighlighter outlineHighlighter;
     [SerializeField] private bool highlightWhenDragging = true;
 
+    [Header("手指引导")]
+    [SerializeField] private FingerDragUI fingerDragUI;
+    [SerializeField] private bool showFingerGuideOnLevelStart = true;
+    [SerializeField] private float showGuideDelay = 0.2f; // 可选，等一帧布局稳定
+
+
     private Collider2D selfCollider;
     private Vector3 originPosition;
     private Vector3 originalScale;
@@ -52,8 +58,34 @@ public class DraggablePiece : MonoBehaviour
             outlineHighlighter = GetComponent<SpriteOutlineHighlighter>();
         }
 
+
+
+
         originPosition = transform.position;
         originalScale = transform.localScale;
+    }
+    private void Start()
+    {
+        if (fingerDragUI == null)
+        {
+            fingerDragUI = FindObjectOfType<FingerDragUI>(true);
+        }
+
+        if (showFingerGuideOnLevelStart && !isCompleted && fingerDragUI != null)
+        {
+            Invoke(nameof(ShowStartGuideFinger), showGuideDelay);
+        }
+    }
+
+    private void ShowStartGuideFinger()
+    {
+        if (isCompleted || fingerDragUI == null) return;
+
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        // 显示在当前碎片位置（你也可以换成 targetSlot 位置）
+        fingerDragUI.ShowGuideAtWorldPosition(transform.position, cam);
     }
 
     public void Init(
@@ -95,6 +127,11 @@ public class DraggablePiece : MonoBehaviour
         Vector3 pos = transform.position;
         pos.z = draggingZ;
         transform.position = pos;
+
+        if (fingerDragUI != null)
+        {
+            fingerDragUI.ShowAtScreenPosition(GetPointerScreenPosition());
+        }
     }
 
     private void OnMouseDrag()
@@ -108,6 +145,11 @@ public class DraggablePiece : MonoBehaviour
 
         targetPos.z = draggingZ;
         transform.position = targetPos;
+
+        if (fingerDragUI != null)
+        {
+            fingerDragUI.FollowScreenPosition(GetPointerScreenPosition());
+        }
     }
 
     private void OnMouseUp()
@@ -132,6 +174,11 @@ public class DraggablePiece : MonoBehaviour
             {
                 StartCoroutine(ReturnToOriginRoutine());
             }
+        }
+
+        if(fingerDragUI!=null)
+        {
+            fingerDragUI.Hide();
         }
     }
 
@@ -262,6 +309,11 @@ public class DraggablePiece : MonoBehaviour
         {
             selfCollider.enabled = false;
         }
+
+        //if (fingerDragUI != null)
+        //{
+        //    fingerDragUI.Hide();
+        //}
     }
 
     public void HidePiece()
@@ -292,4 +344,18 @@ public class DraggablePiece : MonoBehaviour
 
         return worldPos;
     }
+
+    private Vector2 GetPointerScreenPosition()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        return Input.mousePosition;
+#else
+    if (Input.touchCount > 0)
+    {
+        return Input.GetTouch(0).position;
+    }
+    return Input.mousePosition;
+#endif
+    }
+
 }

@@ -6,22 +6,50 @@ using UnityEngine.UI;
 
 public class Level_item : BaseUI
 {
-    public string ItemName;
+    public string Item_level_Name;
     public ItemStaue ItemStaue; 
+    public List<Sprite> sprites;
+
+    [Header("状态图片")]
+    private Image staueImage;
+    
     
     public override void Init()
     {
         base.Init();
 
         var btn = this.GetComponent<Button>();
-        btn.onClick.AddListener(() => loadGameScene(ItemName));
+        btn.onClick.AddListener(() => loadGameScene(Item_level_Name));
+
+        staueImage = m_UiUitil.Get("imge_staue")._image;
+    }
+
+    public override void Show()
+    {
+        UpdateStaue();
+    }
+
+    public void UpdateStaue()
+    {
+        if (staueImage != null)
+        {
+            var levelName = GameManager.Instance.lagerd_level_name + "_" + Item_level_Name;
+            var score = LevelStarSystem.Instance.GetLevelStarsOrDefault(levelName);
+            if (score != 0)
+            {
+                int index = score + 1;
+                staueImage.sprite = sprites[index];
+            }
+            else
+            {
+
+            }
+        }
     }
 
 
     private void loadGameScene(string levelName)
     {
-        //SceneManager.LoadScene("LevelScene");
-        //GameManager.Instance.small_level = levelName;
         GameManager.Instance.LoadLevel(levelName);
     }
 }
@@ -29,6 +57,7 @@ public class Level_item : BaseUI
 public enum ItemStaue
 {
     WEIKAISHI,
+    ING,
     START_1,
     START_2,
     START_3

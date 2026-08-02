@@ -1077,8 +1077,9 @@ GameObject:
   - component: {fileID: 1058949128361210436}
   - component: {fileID: 8868111587006544370}
   - component: {fileID: 5982374803635621318}
+  - component: {fileID: 879534082695824527}
   m_Layer: 5
-  m_Name: "\u56FD\u5B9D\u5361\u7247"
+  m_Name: showCar_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1147,6 +1148,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &879534082695824527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4968335068040659088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def1c7812b3f8a24b9cb6a434c626049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5176877666209995553
 GameObject:
   m_ObjectHideFlags: 0
