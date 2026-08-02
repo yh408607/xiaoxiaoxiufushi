@@ -177,64 +177,6 @@ public class RepairLevelBuilder : MonoBehaviour
     private Sequence spawnSequence;
     private void BuildRepairPoints()
     {
-        //foreach (RepairPointData point in levelData.repairPoints)
-        //{
-        //    if (point == null) continue;
-
-        //    GameObject slotRoot = new GameObject("Slot_" + point.id);
-        //    slotRoot.transform.SetParent(levelRoot);
-        //    slotRoot.transform.position = point.slotPosition;
-        //    generatedObjects.Add(slotRoot);
-
-        //    GameObject grayObj = CreateSpriteObject(
-        //        "GraySlot_" + point.id,
-        //        point.graySlotSprite,
-        //        point.slotPosition,
-        //        point.slotSortingOrder,
-        //        slotRoot.transform
-        //    );
-
-        //    GameObject dragObj = CreateSpriteObject(
-        //        "DragPiece_" + point.id,
-        //        point.dragPieceSprite,
-        //        point.dragStartPosition,
-        //        point.dragSortingOrder,
-        //        levelRoot
-        //    );
-
-
-        //    AddColliderByType(dragObj, point.colliderType);
-
-        //    SpriteOutlineHighlighter highlighter = null;
-
-        //    if (point.enableOutline)
-        //    {
-        //        highlighter = dragObj.AddComponent<SpriteOutlineHighlighter>();
-        //        highlighter.InitConfig(point.outlineColor, point.outlineSize);
-        //    }
-
-        //    PieceIdentity identity = dragObj.AddComponent<PieceIdentity>();
-        //    identity.Init(point.id);
-
-        //    RepairSlot slot = slotRoot.AddComponent<RepairSlot>();
-        //    slot.Init(
-        //        point.id,
-        //        point.snapDistance,
-        //        grayObj,
-        //        slotRoot.transform
-        //    );
-
-        //    currentSlots.Add(slot);
-
-        //    DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
-        //    draggable.Init(slot, Camera.main, highlighter);
-        //}
-
-        spawnSequence?.Kill();
-        spawnSequence = DOTween.Sequence();
-
-        int index = 0;
-
         foreach (RepairPointData point in levelData.repairPoints)
         {
             if (point == null) continue;
@@ -252,18 +194,19 @@ public class RepairLevelBuilder : MonoBehaviour
                 slotRoot.transform
             );
 
-            // 先创建拖拽碎片（先放在修复点）
             GameObject dragObj = CreateSpriteObject(
                 "DragPiece_" + point.id,
                 point.dragPieceSprite,
-                point.slotPosition, // 关键：出生在修复点
+                point.dragStartPosition,
                 point.dragSortingOrder,
                 levelRoot
             );
 
+
             AddColliderByType(dragObj, point.colliderType);
 
             SpriteOutlineHighlighter highlighter = null;
+
             if (point.enableOutline)
             {
                 highlighter = dragObj.AddComponent<SpriteOutlineHighlighter>();
@@ -280,40 +223,99 @@ public class RepairLevelBuilder : MonoBehaviour
                 grayObj,
                 slotRoot.transform
             );
+
             currentSlots.Add(slot);
 
             DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
             draggable.Init(slot, Camera.main, highlighter);
 
-            // 动画前禁止拖拽
-            draggable.SetDragEnabled(false);
-
-            // 错峰播放：从修复点 -> 摆放点
-            float delay = index * spawnStagger;
-            Vector3 endPos = point.dragStartPosition;
-
-            spawnSequence.Insert(
-                delay,
-                dragObj.transform.DOMove(endPos, spawnDuration)
-                    .SetEase(spawnEase)
-                    .OnComplete(() =>
-                    {
-                        if (draggable != null)
-                            draggable.SetDragEnabled(true);
-                    })
-            );
-
-            index++;
+            draggable.PlaySpawnTween(point.slotPosition, point.dragStartPosition, spawnDuration, spawnEase);        
         }
 
-        spawnSequence.OnComplete(() =>
-        {
-            Debug.Log("碎片出生动画播放完成");
-            // TODO: 这里可以触发你的引导逻辑
-            // guideController?.Show();
-        });
+        //spawnSequence?.Kill();
+        //spawnSequence = DOTween.Sequence();
 
-        spawnSequence.Play();
+        //int index = 0;
+
+        //foreach (RepairPointData point in levelData.repairPoints)
+        //{
+        //    if (point == null) continue;
+
+        //    GameObject slotRoot = new GameObject("Slot_" + point.id);
+        //    slotRoot.transform.SetParent(levelRoot);
+        //    slotRoot.transform.position = point.slotPosition;
+        //    generatedObjects.Add(slotRoot);
+
+        //    GameObject grayObj = CreateSpriteObject(
+        //        "GraySlot_" + point.id,
+        //        point.graySlotSprite,
+        //        point.slotPosition,
+        //        point.slotSortingOrder,
+        //        slotRoot.transform
+        //    );
+
+        //    // 先创建拖拽碎片（先放在修复点）
+        //    GameObject dragObj = CreateSpriteObject(
+        //        "DragPiece_" + point.id,
+        //        point.dragPieceSprite,
+        //        point.slotPosition, // 关键：出生在修复点
+        //        point.dragSortingOrder,
+        //        levelRoot
+        //    );
+
+        //    AddColliderByType(dragObj, point.colliderType);
+
+        //    SpriteOutlineHighlighter highlighter = null;
+        //    if (point.enableOutline)
+        //    {
+        //        highlighter = dragObj.AddComponent<SpriteOutlineHighlighter>();
+        //        highlighter.InitConfig(point.outlineColor, point.outlineSize);
+        //    }
+
+        //    PieceIdentity identity = dragObj.AddComponent<PieceIdentity>();
+        //    identity.Init(point.id);
+
+        //    RepairSlot slot = slotRoot.AddComponent<RepairSlot>();
+        //    slot.Init(
+        //        point.id,
+        //        point.snapDistance,
+        //        grayObj,
+        //        slotRoot.transform
+        //    );
+        //    currentSlots.Add(slot);
+
+        //    DraggablePiece draggable = dragObj.AddComponent<DraggablePiece>();
+        //    draggable.Init(slot, Camera.main, highlighter);
+
+        //    // 动画前禁止拖拽
+        //    draggable.SetDragEnabled(false);
+
+        //    // 错峰播放：从修复点 -> 摆放点
+        //    float delay = index * spawnStagger;
+        //    Vector3 endPos = point.dragStartPosition;
+
+        //    spawnSequence.Insert(
+        //        delay,
+        //        dragObj.transform.DOMove(endPos, spawnDuration)
+        //            .SetEase(spawnEase)
+        //            .OnComplete(() =>
+        //            {
+        //                if (draggable != null)
+        //                    draggable.SetDragEnabled(true);
+        //            })
+        //    );
+
+        //    index++;
+        //}
+
+        //spawnSequence.OnComplete(() =>
+        //{
+        //    Debug.Log("碎片出生动画播放完成");
+        //    // TODO: 这里可以触发你的引导逻辑
+        //    // guideController?.Show();
+        //});
+
+        //spawnSequence.Play();
     }
 
     private void BuildManager()
