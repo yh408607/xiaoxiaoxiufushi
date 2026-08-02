@@ -23,4 +23,9 @@ public class shouyePanel : BaseUI
         UIPanelManager.Instance.ShownPanel("UIPanel/main_Panal");
         this.Hide();
     }
+
+    private void OnDestroy()
+    {
+        UIPanelManager.Instance.uipanelPool.Remove("UIPanel/shouyePanel");
+    }
 }

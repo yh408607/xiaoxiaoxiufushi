@@ -22,6 +22,12 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     public float snapSpeed = 10f;
     public float snapThreshold = 0.001f; // 停止阈值（anchoredPosition 差值）
 
+    [Header("Initial Position")]
+    public bool useInitialContentPosition = true;          // 是否启用初始位置
+    public Vector2 initialContentAnchoredPos = Vector2.zero; // 初始 anchoredPosition
+    public bool clampInitialPosition = true;               // 初始位置是否做边界限制
+    public bool snapOnStart = false;                       // 开场是否立刻参与吸附
+
     private readonly List<RectTransform> items = new List<RectTransform>();
     private bool isDragging = false;
     private int targetIndex = -1;
@@ -44,6 +50,23 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
 
         CollectItems();
         UpdateScaleImmediate();
+
+        // 先应用初始位置
+        if (useInitialContentPosition && content != null)
+        {
+            Vector2 p = initialContentAnchoredPos;
+            if (clampInitialPosition) p = ClampContentPos(p);
+            content.anchoredPosition = p;
+        }
+
+        CollectItems();
+        UpdateScaleImmediate();
+
+        // 控制开场是否立即吸附
+        if (snapToCenter && snapOnStart)
+            targetIndex = GetNearestToCenterIndex();
+        else
+            targetIndex = -1; // 不立刻吸附，保留你设置的初始位置
     }
 
     void Update()

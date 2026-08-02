@@ -21,7 +21,7 @@ public class LevelCompleteUIPanel : BaseUI
 
         m_UiUitil.Get("btn_next").AddListenrforBtn(() =>
         {
-
+            GameManager.Instance.LoadLevel("Level_1");
         });
     }
 
@@ -42,5 +42,10 @@ public class LevelCompleteUIPanel : BaseUI
                 ? starOnSprite
                 : starOffSprite;
         }
+    }
+
+    private void OnDestroy()
+    {
+        UIPanelManager.Instance.uipanelPool.Remove("UIPanel/complete_panel");
     }
 }

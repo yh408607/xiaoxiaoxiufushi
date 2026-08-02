@@ -38,6 +38,26 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
     {
         small_level_Name = levelName;
 
+
+        ////判断当前场景名称是否是需要加载的场景
+        //if( SceneManager.GetActiveScene().name == "LevelScene")
+        //{
+        //    if (levelLoader == null)
+        //    {
+        //        levelLoader = new LevelLoader();
+        //        levelLoader.Init();
+        //        levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
+        //    }
+
+        //    levelLoader.LoadLevel(small_level_Name);
+        //    UIPanelManager.Instance.HideAllPanel();
+        //}
+        //else
+        //{
+
+
+        //}
+
         // 先注册“场景加载完成”回调
         SceneManager.sceneLoaded += OnSceneLoaded;
         currenSceneName = "LevelScene";
@@ -50,6 +70,7 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
         // 用完立刻反注册，避免重复触发
         SceneManager.sceneLoaded -= OnSceneLoaded;
 
+       // UIPanelManager.Instance.ClearUIPool();
 
         // 只处理目标场景
         if (scene.name != currenSceneName)
@@ -97,7 +118,7 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
         // 处理关卡完成后的逻辑，例如显示分数、解锁下一关等
        // UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
        //先等几秒再显示关卡完成面板
-        StartCoroutine(ShowLevelCompletePanelAfterDelay(scoreResult, 2f));
+        StartCoroutine(ShowLevelCompletePanelAfterDelay(scoreResult, 1f));
 
         //保存关卡评分
         var levelName = lagerd_level_name + "_" + small_level_Name;
