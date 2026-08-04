@@ -131,7 +131,7 @@ public class ParentVerifyPanel : BaseUI
     public override void Show()
     {
         base.Show();
-        gameObject.SetActive(true);
+        //gameObject.SetActive(true);
 
         failCount = 0;
         isConfirmCooling = false;
@@ -154,7 +154,7 @@ public class ParentVerifyPanel : BaseUI
     {
         base.Hide();
         StopAllLocalCoroutines();
-        gameObject.SetActive(false);
+       // gameObject.SetActive(false);
         OnPanelClosed?.Invoke();
 
     }

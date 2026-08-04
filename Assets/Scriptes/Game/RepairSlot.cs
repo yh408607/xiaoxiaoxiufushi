@@ -45,12 +45,7 @@ public class RepairSlot : MonoBehaviour
         }
     }
 
-    public void Init(
-        string requiredId,
-        float distance,
-        GameObject grayObject,
-        Transform point
-    )
+    public void Init(  string requiredId,  float distance,GameObject grayObject, Transform point )
     {
         requiredPieceId = requiredId;
         snapDistance = distance;

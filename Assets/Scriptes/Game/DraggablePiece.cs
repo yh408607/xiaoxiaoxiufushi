@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using DG.Tweening;
+using System;
 
 [RequireComponent(typeof(Collider2D))]
 public class DraggablePiece : MonoBehaviour
@@ -32,6 +34,10 @@ public class DraggablePiece : MonoBehaviour
     [SerializeField] private bool showFingerGuideOnLevelStart = true;
     [SerializeField] private float showGuideDelay = 0.2f; // 可选，等一帧布局稳定
 
+    [Header("拖拽开关")]
+    [SerializeField] private bool canDrag = true;
+
+    private Tween spawnTween;
 
     private Collider2D selfCollider;
     private Vector3 originPosition;
@@ -57,8 +63,6 @@ public class DraggablePiece : MonoBehaviour
         {
             outlineHighlighter = GetComponent<SpriteOutlineHighlighter>();
         }
-
-
 
 
         originPosition = transform.position;
@@ -358,4 +362,48 @@ public class DraggablePiece : MonoBehaviour
 #endif
     }
 
+
+    /// <summary>
+    /// 从修复点飞到摆放位（DOTween）
+    /// </summary>
+    public Tween PlaySpawnTween(
+        Vector3 repairPos,
+        Vector3 spawnPos,
+        float duration,
+        Ease ease,
+        Action onComplete = null
+    )
+    {
+        // 防止重复 tween
+        spawnTween?.Kill();
+
+        SetDragEnabled(false);
+        transform.position = repairPos;
+
+        spawnTween = transform.DOMove(spawnPos, duration)
+            .SetEase(ease)
+            .OnComplete(() =>
+            {
+                SetDragEnabled(true);
+                onComplete?.Invoke();
+            });
+
+        return spawnTween;
+    }
+
+
+    public void SetDragEnabled(bool enabled)
+    {
+        canDrag = enabled;
+    }
+
+    private void OnDisable()
+    {
+        spawnTween?.Kill();
+    }
+
+    private void OnDestroy()
+    {
+        spawnTween?.Kill();
+    }
 }

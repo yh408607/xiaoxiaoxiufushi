@@ -19,6 +19,12 @@ public class SelectLevelPanel : BaseUI
         {
             loadLevelPanel("TaoChi");
         });
+
+        m_UiUitil.Get("btn_return").AddListenrforBtn(() =>
+        {
+            //UIPanelManager.Instance.ShownPanel("UIPanel/main_panel");
+            this.Hide();
+        });
     }
 
 
@@ -45,7 +51,13 @@ public class SelectLevelPanel : BaseUI
         var temp = UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
         temp.Show(leveName);
 
-        this.Hide();
+        //this.Hide();
 
+    }
+
+
+    private void OnDestroy()
+    {
+        UIPanelManager.Instance.uipanelPool.Remove("UIPanel/select_level_panel");
     }
 }

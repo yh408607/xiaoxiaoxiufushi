@@ -72,6 +72,11 @@ public class MainPanel : BaseUI
                 break;
         }
 
-        this.Hide();
+       // this.Hide();
+    }
+
+    private void OnDestroy()
+    {
+        UIPanelManager.Instance.uipanelPool.Remove("UIPanel/main_Panal");
     }
 }

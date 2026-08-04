@@ -43,5 +43,12 @@ public class LevelPanel : BaseUI
         Hide();
     }
 
+    private void OnDestroy()
+    {
+        UIPanelManager.Instance.uipanelPool.Remove("UIPanel/level_panel");
+    }
+
+
+
 }
 

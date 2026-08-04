@@ -1709,8 +1709,8 @@ MonoBehaviour:
   clearButton: {fileID: 5489104581400147206}
   confirmButton: {fileID: 4387886218513786435}
   closeButton: {fileID: 2917330447728454229}
-  maxNumber: 999
-  maxInputLength: 4
+  maxNumber: 99
+  maxInputLength: 3
   allowSubtraction: 1
   allowAddition: 1
   maxFailBeforeRefresh: 3
