@@ -406,6 +406,12 @@ MonoBehaviour:
   - {fileID: 1269122035495258257}
   starOnSprite: {fileID: 21300000, guid: d1c278c5a5431fd41990452e603d44aa, type: 3}
   starOffSprite: {fileID: 21300000, guid: 26d850a28a3342d4c9b1374fab013fb4, type: 3}
+  starInterval: 0.9
+  flyDuration: 0.45
+  punchDuration: 0.18
+  startScale: 2.2
+  endScale: 1
+  flyOffset: {x: 420, y: 220}
 --- !u!95 &4399484238552942068
 Animator:
   serializedVersion: 5
