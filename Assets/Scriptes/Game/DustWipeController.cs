@@ -131,7 +131,7 @@ public class DustWipeController : MonoBehaviour
         {
             return;
         }
-
+        PlayWipeSfxThrottled();
         DrawBrushToMask(uv);
     }
 
@@ -313,6 +313,19 @@ public class DustWipeController : MonoBehaviour
         {
             spriteRenderer.enabled = visible;
         }
+    }
+
+    [Header("音效")]
+    [SerializeField] private float wipeSfxInterval = 0.08f; // 每80ms最多播一次
+    [SerializeField] private float wipeSfxVolume = 0.8f;
+
+    private float nextWipeSfxTime;
+    private void PlayWipeSfxThrottled()
+    {
+        if (Time.time < nextWipeSfxTime) return;
+
+        nextWipeSfxTime = Time.time + wipeSfxInterval;
+        SfxManager.Instance?.Play(SfxId.DustWipe, wipeSfxVolume);
     }
 
 }

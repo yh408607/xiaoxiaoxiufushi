@@ -12,18 +12,21 @@ public class SelectLevelPanel : BaseUI
         m_UiUitil.Get("Scroll View/Viewport/Content/level_1").AddListenrforBtn(() =>
         {
             loadLevelPanel("BingMaYong");
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
         });
 
         //лу╢и
         m_UiUitil.Get("Scroll View/Viewport/Content/level_2").AddListenrforBtn(() =>
         {
             loadLevelPanel("TaoChi");
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
         });
 
         m_UiUitil.Get("btn_return").AddListenrforBtn(() =>
         {
             //UIPanelManager.Instance.ShownPanel("UIPanel/main_panel");
             this.Hide();
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
         });
     }
 

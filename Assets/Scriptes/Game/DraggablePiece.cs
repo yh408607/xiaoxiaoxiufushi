@@ -171,9 +171,11 @@ public class DraggablePiece : MonoBehaviour
         if (targetSlot != null && targetSlot.CanRepair(this))
         {
             StartCoroutine(SnapToSlotRoutine());
+            SfxManager.Instance?.Play(SfxId.PieceDropCorrect);
         }
         else
         {
+            SfxManager.Instance?.Play(SfxId.PieceDropWrong);
             if (returnToOriginWhenFailed)
             {
                 StartCoroutine(ReturnToOriginRoutine());

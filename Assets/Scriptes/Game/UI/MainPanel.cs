@@ -15,30 +15,35 @@ public class MainPanel : BaseUI
         //显示国宝图鉴按钮
         m_UiUitil.Get("btn_gbtj").AddListenrforBtn(() =>
         {
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
             showPanel("GuoBaoTuJian");
         });
 
         //声音开关按钮
         m_UiUitil.Get("btn_sykg").AddListenrforBtn(() =>
         {
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
             showPanel("Sources");
         });
 
         //家长中心按钮
         m_UiUitil.Get("btn_jzzx").AddListenrforBtn(() =>
         {
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
             showPanel("JiaZhangZhongXing");
         });
 
         //购买中心按钮
         m_UiUitil.Get("btn_hfgm").AddListenrforBtn(() =>
         {
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
             showPanel("GouMaiZhongXing");
         });
 
         //购买中心按钮
         m_UiUitil.Get("btn_ksxf").AddListenrforBtn(() =>
         {
+            SfxManager.Instance?.Play(SfxId.ButtonClick);
             showPanel("StarGame");
         });
     }

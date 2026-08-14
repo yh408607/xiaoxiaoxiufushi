@@ -222,7 +222,7 @@ public class RepairManager : MonoBehaviour
     private void HandleWipeCompleted()
     {
         Debug.Log("擦灰完成，关卡完成");
-
+        SfxManager.Instance?.Play(SfxId.LevelComplete);
         if (wiperTool != null)
         {
             wiperTool.DisableWiper();
