@@ -26,6 +26,11 @@ public class SfxManager : MonoBehaviour
 
     private Dictionary<SfxId, SfxEntry> sfxMap;
 
+    private AudioSource gatedSource;
+    private float gatedEndTime;
+    private AudioClip gatedClip;
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -39,6 +44,14 @@ public class SfxManager : MonoBehaviour
 
         if (oneShotSource == null)
             oneShotSource = gameObject.AddComponent<AudioSource>();
+
+        if (gatedSource == null)
+        {
+            gatedSource = gameObject.AddComponent<AudioSource>();
+            gatedSource.playOnAwake = false;
+            gatedSource.loop = false;
+        }
+
 
         BuildMap();
     }
@@ -80,6 +93,53 @@ public class SfxManager : MonoBehaviour
     {
         return masterSfxVolume;
     }
+
+
+
+    public void StopLoop(SfxId id)
+    {
+        if (loopSource == null) return;
+        if (!loopSource.isPlaying) return;
+        if (sfxMap == null || !sfxMap.TryGetValue(id, out var e)) return;
+
+        if (loopSource.clip == e.clip)
+            loopSource.Stop();
+    }
+
+    public void StopIfPlaying(SfxId id)
+    {
+        if (sfxMap == null || !sfxMap.TryGetValue(id, out var e)) return;
+        if (e == null || e.clip == null || gatedSource == null) return;
+
+        if (gatedSource.isPlaying && gatedClip == e.clip)
+        {
+            gatedSource.Stop();
+            gatedClip = null;
+            gatedEndTime = 0f;
+        }
+    }
+
+    public void PlayIfNotPlaying(SfxId id, float volumeScale = 1f)
+    {
+        if (sfxMap == null || !sfxMap.TryGetValue(id, out var e)) return;
+        if (e == null || e.clip == null) return;
+        if (gatedSource == null) return;
+
+        // 同一个音效未播完，不重复播
+        if (gatedSource.isPlaying && gatedClip == e.clip && Time.time < gatedEndTime)
+            return;
+
+        float finalVol = e.volume * masterSfxVolume * Mathf.Clamp01(volumeScale);
+
+        gatedClip = e.clip;
+        gatedEndTime = Time.time + e.clip.length;
+        gatedSource.clip = e.clip;
+        gatedSource.volume = finalVol;
+        gatedSource.loop = false;
+        gatedSource.Play();
+    }
+
+
 }
 
 public enum SfxId
@@ -90,6 +150,6 @@ public enum SfxId
     PieceDropWrong,   // 碎片错误
     DustWipe,         // 擦拭灰尘
     LevelComplete,    // 完成关卡
-    StarAppear        // 评分星星出现
+    StarAppear ,       // 评分星星出现
 }
 

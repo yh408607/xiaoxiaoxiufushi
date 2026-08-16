@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Data.SqlTypes;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class DustWipeController : MonoBehaviour
@@ -129,10 +130,21 @@ public class DustWipeController : MonoBehaviour
 
         if (!WorldToSpriteUV(worldPosition, out uv))
         {
+            // 不在擦拭区域 -> 停止（这里是停止触发）
+            SfxManager.Instance.StopIfPlaying(SfxId.DustWipe);
             return;
         }
-        PlayWipeSfxThrottled();
+        ////// 2) 再判断是否有效擦拭（是否还有灰可擦）
+        //if (!CanWipeAtUV(uv))
+        //{
+        //    // 在区域内但无有效擦拭 -> 停止（这里是停止触发）
+        //    SfxManager.Instance.StopIfPlaying(SfxId.DustWipe);
+        //    return;
+        //}
         DrawBrushToMask(uv);
+
+        // 3) 播放音效：未播完不可重复播
+        SfxManager.Instance?.PlayIfNotPlaying(SfxId.DustWipe, 0.8f);
     }
 
     private bool WorldToSpriteUV(Vector3 worldPosition, out Vector2 uv)
@@ -141,26 +153,21 @@ public class DustWipeController : MonoBehaviour
 
         Vector3 localPos = transform.InverseTransformPoint(worldPosition);
 
-        Bounds bounds = spriteRenderer.sprite.bounds;
+        Bounds b = spriteRenderer.sprite.bounds;
 
-        float normalizedX = Mathf.InverseLerp(
-            bounds.min.x,
-            bounds.max.x,
-            localPos.x
-        );
-
-        float normalizedY = Mathf.InverseLerp(
-            bounds.min.y,
-            bounds.max.y,
-            localPos.y
-        );
-
-        if (normalizedX < 0f || normalizedX > 1f || normalizedY < 0f || normalizedY > 1f)
+        // 先做范围判断（不要依赖InverseLerp后的结果）
+        if (localPos.x < b.min.x || localPos.x > b.max.x ||
+            localPos.y < b.min.y || localPos.y > b.max.y)
         {
             return false;
         }
 
-        uv = new Vector2(normalizedX, normalizedY);
+        // 手算归一化，避免InverseLerp的clamp掩盖越界
+        float u = (localPos.x - b.min.x) / b.size.x;
+        float v = (localPos.y - b.min.y) / b.size.y;
+
+        uv = new Vector2(u, v);
+        //uv = new Vector2(normalizedX, normalizedY);
         return true;
     }
 
@@ -316,7 +323,7 @@ public class DustWipeController : MonoBehaviour
     }
 
     [Header("音效")]
-    [SerializeField] private float wipeSfxInterval = 0.08f; // 每80ms最多播一次
+    [SerializeField] private float wipeSfxInterval = 2.3f; // 每80ms最多播一次
     [SerializeField] private float wipeSfxVolume = 0.8f;
 
     private float nextWipeSfxTime;
@@ -327,5 +334,50 @@ public class DustWipeController : MonoBehaviour
         nextWipeSfxTime = Time.time + wipeSfxInterval;
         SfxManager.Instance?.Play(SfxId.DustWipe, wipeSfxVolume);
     }
+
+    private bool CanWipeAtUV(Vector2 uv)
+    {
+        if (maskRenderTexture == null) return false;
+
+        int centerX = Mathf.RoundToInt(uv.x * maskTextureSize);
+        int centerY = Mathf.RoundToInt((1f - uv.y) * maskTextureSize);
+        int radius = Mathf.Max(1, Mathf.RoundToInt(brushSize * maskTextureSize));
+
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture.active = maskRenderTexture;
+
+        readableMaskTexture.ReadPixels(
+            new Rect(0, 0, maskTextureSize, maskTextureSize),
+            0,
+            0
+        );
+        readableMaskTexture.Apply();
+
+        RenderTexture.active = previous;
+
+        int minX = Mathf.Max(0, centerX - radius);
+        int maxX = Mathf.Min(maskTextureSize - 1, centerX + radius);
+        int minY = Mathf.Max(0, centerY - radius);
+        int maxY = Mathf.Min(maskTextureSize - 1, centerY + radius);
+
+        int rr = radius * radius;
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            int dy = y - centerY;
+            for (int x = minX; x <= maxX; x++)
+            {
+                int dx = x - centerX;
+                if (dx * dx + dy * dy > rr) continue;
+
+                // 黑色区域=未擦，说明可擦
+                Color32 c = readableMaskTexture.GetPixel(x, y);
+                if (c.r < 20) return true;
+            }
+        }
+
+        return false;
+    }
+
 
 }

@@ -65,6 +65,8 @@ public class MainPanel : BaseUI
 
                 break;
             case "GouMaiZhongXing":
+
+                UIPanelManager.Instance.ShownPanel("UIPanel/goumai_panel");
                 break;
 
 

@@ -141,20 +141,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxEntries:
   - id: 0
-    clip: {fileID: 8300000, guid: 8e527c20898cd6644a8e1fad1370b86c, type: 3}
-    volume: 0.881
+    clip: {fileID: 8300000, guid: c882987005da21d4db414db9fed2fec1, type: 3}
+    volume: 1
   - id: 4
-    clip: {fileID: 8300000, guid: 5ef7f99d13a1c5b4c807a1b4a725bcb9, type: 3}
-    volume: 0.881
+    clip: {fileID: 8300000, guid: d3aacffcb6cd509458a96ce633c36a24, type: 3}
+    volume: 1
   - id: 2
     clip: {fileID: 8300000, guid: ab0179a709b4bbd418ebacc31d3e6fbe, type: 3}
-    volume: 0.881
+    volume: 1
   - id: 3
     clip: {fileID: 8300000, guid: b0d9b27169bfe6647a448fe9a01f851c, type: 3}
-    volume: 0.881
+    volume: 1
   - id: 5
     clip: {fileID: 8300000, guid: 4fbbcb993c3e7d749a9c48e1bbb0b0d8, type: 3}
-    volume: 0.881
+    volume: 1
   oneShotSource: {fileID: 0}
   loopSource: {fileID: 0}
   masterSfxVolume: 1
