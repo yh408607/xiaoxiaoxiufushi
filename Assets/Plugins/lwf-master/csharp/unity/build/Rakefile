@@ -1,0 +1,146 @@
+#
+# Copyright (C) 2012 GREE, Inc.
+#
+# This software is provided 'as-is', without any express or implied
+# warranty.  In no event will the authors be held liable for any damages
+# arising from the use of this software.
+#
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely, subject to the following restrictions:
+#
+# 1. The origin of this software must not be misrepresented; you must not
+#    claim that you wrote the original software. If you use this software
+#    in a product, an acknowledgment in the product documentation would be
+#    appreciated but is not required.
+# 2. Altered source versions must be plainly marked as such, and must not be
+#    misrepresented as being the original software.
+# 3. This notice may not be removed or altered from any source distribution.
+#
+
+require 'fileutils'
+
+UNITYAPP="/Applications/Unity/Unity.app/Contents"
+info = File.read("#{UNITYAPP}/Info.plist")
+info =~ /Unity version (\d)\.(\d)/
+UNITYVERDEF="UNITY_#{$1}_#{$2}"
+info =~ /Unity version (\d+\.\d+\.\d+)/
+UNITYVERSION=$1
+UNITYFRAMEWORKS="#{UNITYAPP}/Frameworks"
+UNITYEXTENSIONS="#{UNITYAPP}/UnityExtensions"
+if UNITYVERSION =~ /^4/
+  UIDLL="#{UNITYAPP}/UnityExtensions/Unity/GUISystem/#{UNITYVERSION}/UnityEngine.UI.dll"
+else
+  UIDLL="#{UNITYAPP}/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll"
+end
+LIBS="-d:#{UNITYVERDEF} -r:#{UNITYFRAMEWORKS}/Managed/UnityEngine.dll -r:#{UIDLL}"
+MONO_BIN="#{UNITYFRAMEWORKS}/Mono/bin"
+MONO_OPTS="-target:library -debug"
+EDITOR_LIBS="#{LIBS} -r:#{UNITYFRAMEWORKS}/Managed/UnityEditor.dll -r:lwf.dll"
+CORE="../../core"
+UNITY=".."
+RENDERER="#{UNITY}/renderer"
+LUABINDING="../../binding/lua"
+
+SRCS= %W|
+  #{CORE}/lwf_animation.cs
+  #{CORE}/lwf_bitmap.cs
+  #{CORE}/lwf_bitmapclip.cs
+  #{CORE}/lwf_bitmapex.cs
+  #{CORE}/lwf_button.cs
+  #{CORE}/lwf_core.cs
+  #{CORE}/lwf_coredata.cs
+  #{CORE}/lwf_coreop.cs
+  #{CORE}/lwf_data.cs
+  #{CORE}/lwf_event.cs
+  #{CORE}/lwf_eventmovie.cs
+  #{CORE}/lwf_eventbutton.cs
+  #{CORE}/lwf_format.cs
+  #{CORE}/lwf_graphic.cs
+  #{CORE}/lwf_input.cs
+  #{CORE}/lwf_iobject.cs
+  #{CORE}/lwf_loader.cs
+  #{CORE}/lwf_lwfcontainer.cs
+  #{CORE}/lwf_movie.cs
+  #{CORE}/lwf_movieat.cs
+  #{CORE}/lwf_movieop.cs
+  #{CORE}/lwf_movieprop.cs
+  #{CORE}/lwf_object.cs
+  #{CORE}/lwf_particle.cs
+  #{CORE}/lwf_programobj.cs
+  #{CORE}/lwf_property.cs
+  #{CORE}/lwf_renderer.cs
+  #{CORE}/lwf_text.cs
+  #{CORE}/lwf_type.cs
+  #{CORE}/lwf_utility.cs
+  #{RENDERER}/combinedmesh/lwf_combinedmesh_bitmap.cs
+  #{RENDERER}/combinedmesh/lwf_combinedmesh_factory.cs
+  #{RENDERER}/combinedmesh/lwf_combinedmesh_text.cs
+  #{RENDERER}/common/lwf_unity_factory.cs
+  #{RENDERER}/common/lwf_unity_resourcecache.cs
+  #{RENDERER}/common/lwf_unity_text.cs
+  #{RENDERER}/drawmesh/lwf_drawmesh_bitmap.cs
+  #{RENDERER}/drawmesh/lwf_drawmesh_factory.cs
+  #{RENDERER}/drawmesh/lwf_drawmesh_text.cs
+  #{RENDERER}/uivertex/lwf_uivertex_bitmap.cs
+  #{RENDERER}/uivertex/lwf_uivertex_factory.cs
+  #{RENDERER}/uivertex/lwf_uivertex_text.cs
+  #{UNITY}/wrapper/LWFObject.cs
+  #{UNITY}/wrapper/LWFPlayer.cs
+  #{UNITY}/extension/tween.js/TweenLWF.cs
+  #{LUABINDING}/lualwf.cs
+  #{LUABINDING}/luna.cs
+  #{LUABINDING}/lwf_lua.cs
+  #{LUABINDING}/lwf_luabinding_lwf_bitmapclip.cs
+  #{LUABINDING}/lwf_luabinding_lwf_button.cs
+  #{LUABINDING}/lwf_luabinding_lwf_lwf.cs
+  #{LUABINDING}/lwf_luabinding_lwf_movie.cs
+  #{LUABINDING}/lwf_luabinding_lwf_point.cs
+|
+
+EDITOR_SRCS= %W|
+  #{UNITY}/editor/LWFObjectEditor.cs
+  #{UNITY}/editor/LWFObjectInspector.cs
+|
+
+task :default => ["build"]
+
+desc "build"
+task :build do
+  puts "lwf.dll:"
+  system "#{MONO_BIN}/gmcs #{LIBS} #{MONO_OPTS} -out:lwf.dll #{SRCS.join(' ')}"
+  puts "lwf_editor.dll:"
+  system "#{MONO_BIN}/gmcs #{EDITOR_LIBS} #{MONO_OPTS} -out:lwf_editor.dll #{EDITOR_SRCS.join(' ')}"
+end
+
+desc "pack"
+task :pack do
+  FileUtils.mkdir_p "Packager/Assets/Plugins/lwf"
+  FileUtils.mkdir_p "Packager/Assets/Resources/LWFShaders"
+  system "rsync -av ../../core Packager/Assets/Plugins/lwf"
+  system "rsync -av --exclude '*.rb' ../../binding Packager/Assets/Plugins/lwf"
+  system "rsync -av ../renderer Packager/Assets/Plugins/lwf"
+  system "rsync -av ../wrapper Packager/Assets/Plugins/lwf"
+  system "rsync -av ../extension Packager/Assets/Plugins/lwf"
+  system "rsync -av ../editor Packager/Assets/Editor/lwf"
+  system "rsync -av ../shaders/*.shader Packager/Assets/Resources/LWFShaders"
+  system "#{UNITYAPP}/MacOS/Unity -projectPath `pwd`/Packager -batchmode -quit -executeMethod Packager.Export"
+  FileUtils.rm_rf "../dist"
+  FileUtils.mkdir_p "../dist"
+  FileUtils.mv "Packager/lwf.unitypackage", "../dist"
+  FileUtils.rm_rf "Packager/Assets/Editor/lwf"
+  FileUtils.rm_rf "Packager/Assets/Plugins"
+  FileUtils.rm_rf "Packager/Assets/Resources"
+end
+
+desc "commit"
+task :commit do
+  rev = open("|git show HEAD|head -1|awk '{print $2}'").read
+  system "git commit -m \"#{rev}\" ../dist/lwf.unitypackage"
+end
+
+desc "clean"
+task :clean do
+  FileUtils.rm_rf [
+    "lwf.dll", "lwf.dll.mdb", "lwf_editor.dll", "lwf_editor.dll.mdb"]
+end

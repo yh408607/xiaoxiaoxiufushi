@@ -182,6 +182,8 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         {
             content.anchoredPosition = targetPos;
         }
+
+        ShowAnimator(index);
     }
 
     private Vector2 ClampContentPos(Vector2 pos)
@@ -215,5 +217,16 @@ public class ScrollCenterZoom : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     {
         isDragging = false;
         targetIndex = GetNearestToCenterIndex();
+    }
+
+    private void ShowAnimator(int index)
+    {
+        if (isDragging) return;
+        foreach (var item in items)
+        {
+            item.GetComponent<Animator>().enabled = false;
+        }
+
+        items[index].GetComponent<Animator>().enabled = true;
     }
 }

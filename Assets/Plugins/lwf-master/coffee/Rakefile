@@ -1,0 +1,241 @@
+#
+# Copyright (C) 2012 GREE, Inc.
+# 
+# This software is provided 'as-is', without any express or implied
+# warranty.  In no event will the authors be held liable for any damages
+# arising from the use of this software.
+# 
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely, subject to the following restrictions:
+# 
+# 1. The origin of this software must not be misrepresented; you must not
+#    claim that you wrote the original software. If you use this software
+#    in a product, an acknowledgment in the product documentation would be
+#    appreciated but is not required.
+# 2. Altered source versions must be plainly marked as such, and must not be
+#    misrepresented as being the original software.
+# 3. This notice may not be removed or altered from any source distribution.
+#
+
+require 'fileutils'
+require 'find'
+
+JS = {}
+JSRELEASE = {}
+PRELUDEJS = {}
+ADDJS = {}
+EXTERNS = {}
+COMPILEROPTIONS = {}
+
+CORE = %w|
+  core/lwf_type
+  core/lwf_format
+  core/lwf_animation
+  core/lwf_data
+  core/lwf_loader
+  core/lwf_utility
+  core/lwf_renderer
+  core/lwf_object
+  core/lwf_graphic
+  core/lwf_bitmap
+  core/lwf_bitmapex
+  core/lwf_text
+  core/lwf_particle
+  core/lwf_programobj
+  core/lwf_iobject
+  core/lwf_button
+  core/lwf_lwfcontainer
+  core/lwf_property
+  core/lwf_bitmapclip
+  core/lwf_movie
+  core/lwf_event
+  core/lwf_eventmovie
+  core/lwf_eventbutton
+  core/lwf_core
+  core/lwf_expose
+|
+
+PRELUDEJSCORE = %w|
+  core/lwf_prelude.js
+|
+
+ADDJSCORE = %w|
+  supports/tween.js/Tween.js
+  supports/base64.js/base64.js
+  supports/lzma-purejs/lzma.prelude.js
+  supports/lzma-purejs/makeBuffer.js
+  supports/lzma-purejs/RangeCoder/Encoder.js
+  supports/lzma-purejs/RangeCoder/Decoder.js
+  supports/lzma-purejs/RangeCoder/BitTreeEncoder.js
+  supports/lzma-purejs/RangeCoder/BitTreeDecoder.js
+  supports/lzma-purejs/LZ/InWindow.js
+  supports/lzma-purejs/LZ/OutWindow.js
+  supports/lzma-purejs/LZ/BinTree.js
+  supports/lzma-purejs/LZMA/Base.js
+  supports/lzma-purejs/LZMA/Encoder.js
+  supports/lzma-purejs/LZMA/Decoder.js
+  supports/lzma-purejs/Util.js
+  supports/lzma-purejs/lzma.finale.js
+|
+
+JS["lwf"] = CORE + %w|
+  webkitcss/lwf_webkitcss_factory
+  webkitcss/lwf_webkitcss_bitmap
+  webkitcss/lwf_html5_text
+  webkitcss/lwf_webkitcss_text
+  webkitcss/lwf_webkitcss_domelement
+  webkitcss/lwf_webkitcss_loader
+  webkitcss/lwf_webkitcss_resourcecache
+  webkitcss/lwf_webkitcss_expose
+  webkitcss/lwf_webkitcss_worker
+  canvas/lwf_canvas_factory
+  canvas/lwf_canvas_bitmap
+  canvas/lwf_canvas_text
+  canvas/lwf_canvas_resourcecache
+  canvas/lwf_canvas_expose
+  webgl/lwf_webgl_factory
+  webgl/lwf_webgl_bitmap
+  webgl/lwf_webgl_resourcecache
+  webgl/lwf_webgl_text
+  webgl/lwf_webgl_expose
+|
+PRELUDEJS["lwf"] = PRELUDEJSCORE
+ADDJS["lwf"] = ADDJSCORE
+EXTERNS["lwf"] = %w|
+  core/lwf_extern
+|
+COMPILEROPTIONS["lwf"] = "--compilation_level ADVANCED_OPTIMIZATIONS"
+
+JS["lwf_cocos2d"] = CORE + %w|
+  webkitcss/lwf_webkitcss_domelement
+  webkitcss/lwf_webkitcss_loader
+  webkitcss/lwf_webkitcss_resourcecache
+  webkitcss/lwf_webkitcss_worker
+  cocos2d/lwf_cocos2d_factory
+  cocos2d/lwf_cocos2d_bitmap
+  cocos2d/lwf_cocos2d_text
+  cocos2d/lwf_cocos2d_particle
+  cocos2d/lwf_cocos2d_resourcecache
+  cocos2d/lwf_cocos2d_expose
+  cocos2d/lwf_cocos2d_node
+|
+PRELUDEJS["lwf_cocos2d"] = ["cocos2d/lwf_cocos2d_prelude.js"]
+ADDJS["lwf_cocos2d"] = ADDJSCORE
+EXTERNS["lwf_cocos2d"] = EXTERNS["lwf"]
+COMPILEROPTIONS["lwf_cocos2d"] = "--compilation_level SIMPLE_OPTIMIZATIONS"
+
+JS["test"] = %W|
+  test/test
+|
+
+TARGETS = []
+RELEASE_TARGETS = []
+DEPENDS = {}
+JS.each do |k,v|
+  target = "js_debug/#{k}.js"
+  TARGETS.push target
+  DEPENDS[target] = v.map{|s| "#{s}.coffee"}
+  next if k =~ /^test/
+  rtarget = "js/#{k}.js"
+  RELEASE_TARGETS.push rtarget
+  DEPENDS[rtarget] = target
+end
+
+task :default => ["build"]
+
+desc "build"
+task :build => TARGETS
+
+desc "release"
+task :release => RELEASE_TARGETS
+
+rule ".js" => lambda{|o| DEPENDS[o]} do |t|
+  puts t.name + ":"
+  basename = File.basename(t.name, '.*')
+  outdir = File.dirname(t.name)
+  FileUtils.mkdir_p outdir
+  tmp = t.name + ".tmp"
+  if t.source =~ /\.js$/
+    tmp0 = t.name + ".tmp.0"
+    tmp1 = t.name + ".tmp.1"
+    externs = ""
+    es = EXTERNS[basename]
+    unless es.nil?
+      es.each do |e|
+        externs += "--externs #{e}.js "
+      end
+    end
+    jsrelease = ""
+    jr = JSRELEASE[basename]
+    unless jr.nil?
+      jr.each do |js|
+        jsrelease += js + ".js "
+      end
+    end
+    option = COMPILEROPTIONS[basename] || ""
+    system "grep -v \"^ *[A-Z][^ ]*\\.name = '[A-Z][^ ]*';\" #{t.source} > #{tmp0}"
+    system "java -jar ../tools/closure/compiler.jar #{option} --js #{tmp0} #{jsrelease} --js_output_file #{tmp1} #{externs}"
+    system "echo '(function(){' > #{tmp0}; cat #{tmp1} >> #{tmp0}; echo '}).call(this);' >> #{tmp0}"
+    system "uglifyjs -mt -nc --unsafe -o #{t.name} #{tmp0}"
+    FileUtils.rm_f [tmp0, tmp1]
+  else
+    system "cat #{t.sources.join(' ')}|coffee --compile --stdio > #{t.name}"
+    if t.name =~ /lwf/
+      FileUtils.mv t.name, tmp
+      system "sed -e \"s/^\\((function() {\\)/\\1 var __FILE__ = '#{File.basename(t.name)}';/\" #{tmp} > #{t.name}"
+    end
+    if !PRELUDEJS[basename].nil? or !ADDJS[basename].nil?
+      FileUtils.mv t.name, tmp
+      prelude = PRELUDEJS[basename].join(' ')
+      addjs = ADDJS[basename].join(' ')
+      system "cat #{prelude} #{tmp} #{addjs} > #{t.name}"
+    end
+  end
+  FileUtils.mv t.name, tmp
+  f = File.open(tmp, "rb")
+  js = f.read
+  f.close
+  f = File.open(t.name, "wb")
+  f.puts "// Copyright (c) 2012-2013 GREE, Inc - http://git.io/uvS3hQ"
+  f.puts "// Copyright (c) 2010-2012 Tween.js authors - http://git.io/tiDrNw"
+  f.puts "// Copyright (c) 2001 Robert Penner - http://goo.gl/Qjqc0"
+  f.puts "// Copyright (c) 2011 Gary Linscott"
+  f.puts "// Copyright (c) 2011-2012 Juan Mellado"
+  f.puts "// Copyright (c) 2013 C. Scott Ananian - http://git.io/vUHSG"
+  f.puts "// Copyright (c) 2012 imaya - http://git.io/cC8gDw"
+  f.write js
+  f.close
+  FileUtils.rm_f tmp
+end
+
+desc "check"
+task :check do
+  srcs = {}
+  DEPENDS.values.each do |d|
+    if d.kind_of? String
+      next unless d =~ /\.coffee$/
+      srcs[d] = true
+    elsif d.kind_of? Array
+      d.each do |src|
+        next unless src =~ /\.coffee$/
+        srcs[src] = true
+      end
+    end
+  end
+  srcs.keys.each do |src|
+    system "coffeelint #{src}"
+    system "coffee -o /tmp -c #{src}"
+  end
+end
+
+desc "commit"
+task :commit do
+  rev = open("|git show HEAD|head -1|awk '{print $2}'").read
+  system "git commit -m \"#{rev}\" #{TARGETS.join(' ')} #{RELEASE_TARGETS.join(' ')}"
+end
+
+desc "clean"
+task :clean do
+  FileUtils.rm_rf ["js_debug", "js"]
+end

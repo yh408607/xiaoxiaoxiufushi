@@ -59,6 +59,7 @@ public class LevelCompleteUIPanel : BaseUI
     {
         Show();
 
+        yield return new WaitForSeconds(0.5f);
         if (timeText != null)
             timeText.text = result.FormattedTime;
         starSeq?.Kill();

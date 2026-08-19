@@ -94,18 +94,21 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
                 break;
             case "MainScene":
 
-                UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/shouyePanel");
+                //UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/shouyePanel");
                 UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/main_Panal");
                 UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/select_level_panel");
                 UIPanelManager.Instance.addUIPanelInCuretnSceneAndInit("UIPanel/level_panel");
                 UIPanelManager.Instance.HideAllPanel();
 
-                UIPanelManager.Instance.ShownPanel("UIPanel/shouyePanel");
+               // UIPanelManager.Instance.ShownPanel("UIPanel/shouyePanel");
                 break;
             default:
                 break;
         }
     }
+
+    
+
 
     private void OnDestroy()
     {
