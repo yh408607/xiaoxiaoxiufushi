@@ -1,0 +1,129 @@
+images/PNG.png
+size: 257,318
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG
+  rotate: false
+  xy: 0,0
+  size: 257,318
+  orig: 257,318
+  offset: 0,0
+  index: -1
+
+images/PNG_1.png
+size: 287,299
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_1
+  rotate: false
+  xy: 0,0
+  size: 287,299
+  orig: 287,299
+  offset: 0,0
+  index: -1
+
+images/PNG_2.png
+size: 493,200
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_2
+  rotate: false
+  xy: 0,0
+  size: 493,200
+  orig: 493,200
+  offset: 0,0
+  index: -1
+
+images/PNG_3.png
+size: 178,227
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_3
+  rotate: false
+  xy: 0,0
+  size: 178,227
+  orig: 178,227
+  offset: 0,0
+  index: -1
+
+images/PNG_4.png
+size: 282,267
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_4
+  rotate: false
+  xy: 0,0
+  size: 282,267
+  orig: 282,267
+  offset: 0,0
+  index: -1
+
+images/PNG_5.png
+size: 407,444
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_5
+  rotate: false
+  xy: 0,0
+  size: 407,444
+  orig: 407,444
+  offset: 0,0
+  index: -1
+
+images/PNG_6.png
+size: 268,309
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_6
+  rotate: false
+  xy: 0,0
+  size: 268,309
+  orig: 268,309
+  offset: 0,0
+  index: -1
+
+images/PNG_7.png
+size: 195,148
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_7
+  rotate: false
+  xy: 0,0
+  size: 195,148
+  orig: 195,148
+  offset: 0,0
+  index: -1
+
+images/ceramics_flower_png.png
+size: 137,137
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+ceramics_flower_png
+  rotate: false
+  xy: 0,0
+  size: 137,137
+  orig: 137,137
+  offset: 0,0
+  index: -1
+
+images/Image2_PNG.png
+size: 1098,819
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Image2_PNG
+  rotate: false
+  xy: 0,0
+  size: 1098,819
+  orig: 1098,819
+  offset: 0,0
+  index: -1

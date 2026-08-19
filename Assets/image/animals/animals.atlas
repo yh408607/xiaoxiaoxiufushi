@@ -1,0 +1,116 @@
+images/PNG.png
+size: 704,198
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG
+  rotate: false
+  xy: 0,0
+  size: 704,198
+  orig: 704,198
+  offset: 0,0
+  index: -1
+
+images/PNG_1.png
+size: 355,196
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_1
+  rotate: false
+  xy: 0,0
+  size: 355,196
+  orig: 355,196
+  offset: 0,0
+  index: -1
+
+images/PNG_2.png
+size: 324,382
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_2
+  rotate: false
+  xy: 0,0
+  size: 324,382
+  orig: 324,382
+  offset: 0,0
+  index: -1
+
+images/PNG_3.png
+size: 279,372
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_3
+  rotate: false
+  xy: 0,0
+  size: 279,372
+  orig: 279,372
+  offset: 0,0
+  index: -1
+
+images/PNG_4.png
+size: 190,218
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_4
+  rotate: false
+  xy: 0,0
+  size: 190,218
+  orig: 190,218
+  offset: 0,0
+  index: -1
+
+images/PNG_5.png
+size: 183,217
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_5
+  rotate: false
+  xy: 0,0
+  size: 183,217
+  orig: 183,217
+  offset: 0,0
+  index: -1
+
+images/PNG_6.png
+size: 284,334
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+PNG_6
+  rotate: false
+  xy: 0,0
+  size: 284,334
+  orig: 284,334
+  offset: 0,0
+  index: -1
+
+images/animals_flower_png.png
+size: 55,108
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+animals_flower_png
+  rotate: false
+  xy: 0,0
+  size: 55,108
+  orig: 55,108
+  offset: 0,0
+  index: -1
+
+images/Image2_PNG.png
+size: 1078,714
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Image2_PNG
+  rotate: false
+  xy: 0,0
+  size: 1078,714
+  orig: 1078,714
+  offset: 0,0
+  index: -1

@@ -1,0 +1,116 @@
+images/item.png
+size: 1490,437
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item
+  rotate: false
+  xy: 0,0
+  size: 1490,437
+  orig: 1490,437
+  offset: 0,0
+  index: -1
+
+images/item_1.png
+size: 1388,923
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_1
+  rotate: false
+  xy: 0,0
+  size: 1388,923
+  orig: 1388,923
+  offset: 0,0
+  index: -1
+
+images/item_2.png
+size: 393,675
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_2
+  rotate: false
+  xy: 0,0
+  size: 393,675
+  orig: 393,675
+  offset: 0,0
+  index: -1
+
+images/item_3.png
+size: 722,819
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_3
+  rotate: false
+  xy: 0,0
+  size: 722,819
+  orig: 722,819
+  offset: 0,0
+  index: -1
+
+images/item_4.png
+size: 1912,566
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_4
+  rotate: false
+  xy: 0,0
+  size: 1912,566
+  orig: 1912,566
+  offset: 0,0
+  index: -1
+
+images/item_5.png
+size: 734,583
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_5
+  rotate: false
+  xy: 0,0
+  size: 734,583
+  orig: 734,583
+  offset: 0,0
+  index: -1
+
+images/dunhuang_flower_png.png
+size: 133,133
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+dunhuang_flower_png
+  rotate: false
+  xy: 0,0
+  size: 133,133
+  orig: 133,133
+  offset: 0,0
+  index: -1
+
+images/item_7.png
+size: 1454,670
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_7
+  rotate: false
+  xy: 0,0
+  size: 1454,670
+  orig: 1454,670
+  offset: 0,0
+  index: -1
+
+images/2.png
+size: 1696,1616
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+2
+  rotate: false
+  xy: 0,0
+  size: 1696,1616
+  orig: 1696,1616
+  offset: 0,0
+  index: -1

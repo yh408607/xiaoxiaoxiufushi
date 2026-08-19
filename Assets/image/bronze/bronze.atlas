@@ -1,0 +1,155 @@
+images/item.png
+size: 1070,428
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item
+  rotate: false
+  xy: 0,0
+  size: 1070,428
+  orig: 1070,428
+  offset: 0,0
+  index: -1
+
+images/item_1.png
+size: 581,642
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_1
+  rotate: false
+  xy: 0,0
+  size: 581,642
+  orig: 581,642
+  offset: 0,0
+  index: -1
+
+images/item_2.png
+size: 326,240
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_2
+  rotate: false
+  xy: 0,0
+  size: 326,240
+  orig: 326,240
+  offset: 0,0
+  index: -1
+
+images/item_3.png
+size: 403,198
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_3
+  rotate: false
+  xy: 0,0
+  size: 403,198
+  orig: 403,198
+  offset: 0,0
+  index: -1
+
+images/item_4.png
+size: 668,842
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_4
+  rotate: false
+  xy: 0,0
+  size: 668,842
+  orig: 668,842
+  offset: 0,0
+  index: -1
+
+images/item_5.png
+size: 671,679
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_5
+  rotate: false
+  xy: 0,0
+  size: 671,679
+  orig: 671,679
+  offset: 0,0
+  index: -1
+
+images/item_6.png
+size: 485,702
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_6
+  rotate: false
+  xy: 0,0
+  size: 485,702
+  orig: 485,702
+  offset: 0,0
+  index: -1
+
+images/item_7.png
+size: 557,554
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_7
+  rotate: false
+  xy: 0,0
+  size: 557,554
+  orig: 557,554
+  offset: 0,0
+  index: -1
+
+images/item_8.png
+size: 846,861
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_8
+  rotate: false
+  xy: 0,0
+  size: 846,861
+  orig: 846,861
+  offset: 0,0
+  index: -1
+
+images/item_9.png
+size: 1016,507
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_9
+  rotate: false
+  xy: 0,0
+  size: 1016,507
+  orig: 1016,507
+  offset: 0,0
+  index: -1
+
+images/bronze_flower_png.png
+size: 131,137
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bronze_flower_png
+  rotate: false
+  xy: 0,0
+  size: 131,137
+  orig: 131,137
+  offset: 0,0
+  index: -1
+
+images/item_11.png
+size: 2247,627
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_11
+  rotate: false
+  xy: 0,0
+  size: 2247,627
+  orig: 2247,627
+  offset: 0,0
+  index: -1

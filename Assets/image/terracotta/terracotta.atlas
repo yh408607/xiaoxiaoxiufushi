@@ -1,0 +1,155 @@
+images/title.png
+size: 1172,381
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+title
+  rotate: false
+  xy: 0,0
+  size: 1172,381
+  orig: 1172,381
+  offset: 0,0
+  index: -1
+
+images/horses_chariot.png
+size: 857,390
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+horses_chariot
+  rotate: false
+  xy: 0,0
+  size: 857,390
+  orig: 857,390
+  offset: 0,0
+  index: -1
+
+images/main_warrior.png
+size: 714,1207
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+main_warrior
+  rotate: false
+  xy: 0,0
+  size: 714,1207
+  orig: 714,1207
+  offset: 0,0
+  index: -1
+
+images/shield.png
+size: 422,430
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+shield
+  rotate: false
+  xy: 0,0
+  size: 422,430
+  orig: 422,430
+  offset: 0,0
+  index: -1
+
+images/rear_warrior_clean.png
+size: 383,905
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+rear_warrior_clean
+  rotate: false
+  xy: 0,0
+  size: 383,905
+  orig: 383,905
+  offset: 0,0
+  index: -1
+
+images/rear_warrior_moustache.png
+size: 391,898
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+rear_warrior_moustache
+  rotate: false
+  xy: 0,0
+  size: 391,898
+  orig: 391,898
+  offset: 0,0
+  index: -1
+
+images/bronze_ding.png
+size: 547,562
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bronze_ding
+  rotate: false
+  xy: 0,0
+  size: 547,562
+  orig: 547,562
+  offset: 0,0
+  index: -1
+
+images/halberd.png
+size: 335,889
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+halberd
+  rotate: false
+  xy: 0,0
+  size: 335,889
+  orig: 335,889
+  offset: 0,0
+  index: -1
+
+images/cloud.png
+size: 336,159
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+cloud
+  rotate: false
+  xy: 0,0
+  size: 336,159
+  orig: 336,159
+  offset: 0,0
+  index: -1
+
+images/terracotta_flower_png.png
+size: 160,160
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+terracotta_flower_png
+  rotate: false
+  xy: 0,0
+  size: 160,160
+  orig: 160,160
+  offset: 0,0
+  index: -1
+
+images/platform.png
+size: 2201,789
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+platform
+  rotate: false
+  xy: 0,0
+  size: 2201,789
+  orig: 2201,789
+  offset: 0,0
+  index: -1
+
+images/mountains_wall.png
+size: 1950,492
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+mountains_wall
+  rotate: false
+  xy: 0,0
+  size: 1950,492
+  orig: 1950,492
+  offset: 0,0
+  index: -1

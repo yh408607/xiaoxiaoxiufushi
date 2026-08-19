@@ -1,0 +1,142 @@
+images/item.png
+size: 1086,437
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item
+  rotate: false
+  xy: 0,0
+  size: 1086,437
+  orig: 1086,437
+  offset: 0,0
+  index: -1
+
+images/item_1.png
+size: 603,578
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_1
+  rotate: false
+  xy: 0,0
+  size: 603,578
+  orig: 603,578
+  offset: 0,0
+  index: -1
+
+images/item_2.png
+size: 488,471
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_2
+  rotate: false
+  xy: 0,0
+  size: 488,471
+  orig: 488,471
+  offset: 0,0
+  index: -1
+
+images/item_3.png
+size: 438,550
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_3
+  rotate: false
+  xy: 0,0
+  size: 438,550
+  orig: 438,550
+  offset: 0,0
+  index: -1
+
+images/item_4.png
+size: 665,728
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_4
+  rotate: false
+  xy: 0,0
+  size: 665,728
+  orig: 665,728
+  offset: 0,0
+  index: -1
+
+images/item_5.png
+size: 892,1067
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_5
+  rotate: false
+  xy: 0,0
+  size: 892,1067
+  orig: 892,1067
+  offset: 0,0
+  index: -1
+
+images/item_6.png
+size: 359,636
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_6
+  rotate: false
+  xy: 0,0
+  size: 359,636
+  orig: 359,636
+  offset: 0,0
+  index: -1
+
+images/item_7.png
+size: 940,1120
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_7
+  rotate: false
+  xy: 0,0
+  size: 940,1120
+  orig: 940,1120
+  offset: 0,0
+  index: -1
+
+images/jade_flower_png.png
+size: 51,102
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+jade_flower_png
+  rotate: false
+  xy: 0,0
+  size: 51,102
+  orig: 51,102
+  offset: 0,0
+  index: -1
+
+images/item_9.png
+size: 1848,706
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_9
+  rotate: false
+  xy: 0,0
+  size: 1848,706
+  orig: 1848,706
+  offset: 0,0
+  index: -1
+
+images/item_10.png
+size: 1740,398
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+item_10
+  rotate: false
+  xy: 0,0
+  size: 1740,398
+  orig: 1740,398
+  offset: 0,0
+  index: -1
