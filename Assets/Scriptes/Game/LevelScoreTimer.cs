@@ -11,6 +11,9 @@ public class LevelScoreTimer : MonoBehaviour
     private float finishTime;
     private bool isRunning;
     private bool isFinished;
+    private int lastPublishedStars = -1;
+
+    public event Action<int> OnStarsChanged;
 
     public float ElapsedTime
     {
@@ -38,6 +41,24 @@ public class LevelScoreTimer : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (!isRunning)
+        {
+            return;
+        }
+
+        int currentStars = CurrentStars;
+
+        if (currentStars == lastPublishedStars)
+        {
+            return;
+        }
+
+        lastPublishedStars = currentStars;
+        OnStarsChanged?.Invoke(currentStars);
+    }
+
     public void Init(float threeStar, float twoStar)
     {
         threeStarTime = threeStar;
@@ -56,6 +77,9 @@ public class LevelScoreTimer : MonoBehaviour
         finishTime = 0f;
         isRunning = true;
         isFinished = false;
+
+        lastPublishedStars = -1;
+        PublishCurrentStars();
     }
 
     public LevelScoreResult StopTimer()
@@ -69,7 +93,22 @@ public class LevelScoreTimer : MonoBehaviour
         isRunning = false;
         isFinished = true;
 
+        PublishCurrentStars();
+
         return GetResult();
+    }
+
+    private void PublishCurrentStars()
+    {
+        int currentStars = CurrentStars;
+
+        if (currentStars == lastPublishedStars)
+        {
+            return;
+        }
+
+        lastPublishedStars = currentStars;
+        OnStarsChanged?.Invoke(currentStars);
     }
 
     public LevelScoreResult GetResult()
