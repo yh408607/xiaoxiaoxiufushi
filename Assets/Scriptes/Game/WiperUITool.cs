@@ -57,14 +57,15 @@ public class WiperUITool : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
     {
         isEnabled = true;
         isDragging = false;
-        gameObject.SetActive(true);
+         gameObject.SetActive(true);
+        //gameObject.active = true;
     }
 
     public void DisableWiper()
     {
         isEnabled = false;
         isDragging = false;
-        gameObject.SetActive(false);
+        gameObject.SetActive(true);
     }
 
     public void OnPointerDown(PointerEventData eventData)

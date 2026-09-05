@@ -344,10 +344,10 @@ RectTransform:
   - {fileID: 3400277106334403051}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2436, y: 1125.2228}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8525363166087687961
 CanvasRenderer:
@@ -408,10 +408,12 @@ MonoBehaviour:
   starOffSprite: {fileID: 21300000, guid: 26d850a28a3342d4c9b1374fab013fb4, type: 3}
   starInterval: 0.9
   flyDuration: 0.45
-  punchDuration: 0.18
-  startScale: 2.2
-  endScale: 1
-  flyOffset: {x: 420, y: 220}
+  flyStartScale: 1.8
+  flyEndScale: 1
+  leftUpX: -280
+  upY: 260
+  rightUpX: 280
+  flyStarRoot: {fileID: 0}
 --- !u!95 &4399484238552942068
 Animator:
   serializedVersion: 5
