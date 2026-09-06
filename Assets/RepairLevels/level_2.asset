@@ -10,75 +10,75 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 580f973cea45a3140957424f597a0bda, type: 3}
-  m_Name: level_1
+  m_Name: level_2
   m_EditorClassIdentifier: 
-  levelName: level_1
-  backgroundPosition: {x: 0, y: 0.27, z: 0}
+  levelName: level_2
+  backgroundPosition: {x: 0, y: 0, z: 0}
   backgroundScale: {x: 1, y: 1, z: 1}
   repairBackgroundSprite: {fileID: 21300000, guid: 15098b6638daa704abd3dfd83378bad3, type: 3}
   repairBackgroundSortingOrder: -10
   cleanBackgroundSprite: {fileID: 21300000, guid: c33135c9b9adb114391bd4a3537a932f, type: 3}
   cleanBackgroundSortingOrder: -10
   dustSprite: {fileID: 21300000, guid: 8d84da2bfc567e948803799eedd4fbf1, type: 3}
-  dustSortingOrder: 0
-  wipeCompletePercent: 0.951
+  dustSortingOrder: 10
+  wipeCompletePercent: 0.9
   wipeBrushSize: 0.08
   threeStarTime: 60
   twoStarTime: 120
   repairPoints:
   - id: piece_01
     graySlotSprite: {fileID: 21300000, guid: a27e2a15eecbf9d4ea8e9398723cc4ce, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: f4bb0f33fe6972d4ab3c55272aa1e948, type: 3}
-    slotPosition: {x: 0.24, y: -0.72, z: 0}
-    dragStartPosition: {x: 2.79, y: -2.09, z: 0}
+    dragPieceSprite: {fileID: 21300000, guid: 15d0d6e7661161744a7c23e5d30cc6e1, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 1.2, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
-    snapDistance: 1.5
+    snapDistance: 0.5
     colliderType: 2
     enableOutline: 1
     outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     outlineSize: 0.05
   - id: piece_02
     graySlotSprite: {fileID: 21300000, guid: b5d54f6114ce99440bfbf4ae8a6c6890, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: a19bc62b830c5e34da2950c3467da09e, type: 3}
-    slotPosition: {x: 1.33, y: 0.18, z: 0}
-    dragStartPosition: {x: -3.52, y: -2.29, z: 0}
+    dragPieceSprite: {fileID: 21300000, guid: 434302be1c9ad8a45b3f5378505a928b, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 2.4, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
-    snapDistance: 1.5
+    snapDistance: 0.5
     colliderType: 2
     enableOutline: 1
     outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     outlineSize: 0.05
   - id: piece_03
-    graySlotSprite: {fileID: 21300000, guid: ef97758b7b2138c4f9648e766e4ea072, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: 8a45f2ed952ef6d42a02c46cacf77c12, type: 3}
-    slotPosition: {x: -1.03, y: 1.56, z: 0}
-    dragStartPosition: {x: -4.29, y: -0.26, z: 0}
+    graySlotSprite: {fileID: 21300000, guid: a62a04b6b6a55a449a7ecad89201eb4d, type: 3}
+    dragPieceSprite: {fileID: 21300000, guid: f7966385f9e1c6e42a059c12d1814d54, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 3.6000001, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
-    snapDistance: 1.5
+    snapDistance: 0.5
     colliderType: 2
     enableOutline: 1
     outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     outlineSize: 0.05
   - id: piece_04
-    graySlotSprite: {fileID: 21300000, guid: 71d49e6d72cc9be48b67cead01132644, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: cc78404ab8de8c64884dc94ab0dbea19, type: 3}
-    slotPosition: {x: 0.813, y: 1.96, z: 0}
-    dragStartPosition: {x: 3.82, y: -0.23, z: 0}
+    graySlotSprite: {fileID: 21300000, guid: 877e1db0984afc746a94d154b2101ff0, type: 3}
+    dragPieceSprite: {fileID: 21300000, guid: a93527cda93ff9346b4e29fae368a2c1, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 4.8, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
-    snapDistance: 1.5
+    snapDistance: 0.5
     colliderType: 2
     enableOutline: 1
     outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     outlineSize: 0.05
   - id: piece_05
     graySlotSprite: {fileID: 21300000, guid: 9b9e7ad4fc7b79441b02658e3a7bce47, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: d2ee12e2b28581b4aa4c7ed4e7e0ff91, type: 3}
-    slotPosition: {x: 0.76, y: -2.07, z: 0}
-    dragStartPosition: {x: -3.29, y: -0.7, z: 0}
+    dragPieceSprite: {fileID: 21300000, guid: f6b13c7565a4a5e47925dd851d0e1d60, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 6, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
     snapDistance: 0.5
@@ -87,10 +87,10 @@ MonoBehaviour:
     outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     outlineSize: 0.05
   - id: piece_06
-    graySlotSprite: {fileID: 21300000, guid: 4adadc5e2943b4bb4ab783ac769bab63, type: 3}
-    dragPieceSprite: {fileID: 21300000, guid: 2b4ab69caed963243982a9b5226b6e32, type: 3}
-    slotPosition: {x: -1, y: -0.96, z: 0}
-    dragStartPosition: {x: 4.17, y: -1.95, z: 0}
+    graySlotSprite: {fileID: 21300000, guid: ae02199e70c03854bb3e84687db95965, type: 3}
+    dragPieceSprite: {fileID: 21300000, guid: e69e8f478605f9e428b303538387833f, type: 3}
+    slotPosition: {x: 0, y: 0, z: 0}
+    dragStartPosition: {x: 7.2000003, y: -3, z: 0}
     slotSortingOrder: 0
     dragSortingOrder: 5
     snapDistance: 0.5
