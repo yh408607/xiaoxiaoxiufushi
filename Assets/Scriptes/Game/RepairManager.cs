@@ -24,6 +24,7 @@ public class RepairManager : MonoBehaviour
     private GameObject cleanBackgroundObject;
 
     private LevelScoreTimer scoreTimer;
+    private LevelScoreRuntimeUI runtimeScoreUI;
     private LevelScoreResult lastScoreResult;
 
     public LevelScoreResult LastScoreResult => lastScoreResult;
@@ -51,6 +52,11 @@ public class RepairManager : MonoBehaviour
         if (dustWipeController != null)
         {
             dustWipeController.OnWipeCompleted -= HandleWipeCompleted;
+        }
+
+        if (runtimeScoreUI != null)
+        {
+            runtimeScoreUI.Unbind();
         }
     }
 
@@ -110,7 +116,16 @@ public class RepairManager : MonoBehaviour
         scoreTimer.Init(threeStarTime, twoStarTime);
         scoreTimer.StartTimer();
 
-        //todo加载UI，绑定UI事件
+        runtimeScoreUI = FindObjectOfType<LevelScoreRuntimeUI>(true);
+
+        if (runtimeScoreUI == null)
+        {
+            Debug.LogWarning("RepairManager：没有找到 LevelScoreRuntimeUI");
+        }
+        else
+        {
+            runtimeScoreUI.Bind(scoreTimer);
+        }
 
     }
 
