@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
     /// </summary>
     public string small_level_Name;
 
-    public LevelLoader levelLoader;
+    public FragmentAssemblyLevelLoader levelLoader;
 
     private string currenSceneName;
 
@@ -35,26 +35,6 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
     public void LoadLevel(string levelName)
     {
         small_level_Name = levelName;
-
-
-        ////判断当前场景名称是否是需要加载的场景
-        //if( SceneManager.GetActiveScene().name == "LevelScene")
-        //{
-        //    if (levelLoader == null)
-        //    {
-        //        levelLoader = new LevelLoader();
-        //        levelLoader.Init();
-        //        levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
-        //    }
-
-        //    levelLoader.LoadLevel(small_level_Name);
-        //    UIPanelManager.Instance.HideAllPanel();
-        //}
-        //else
-        //{
-
-
-        //}
 
         // 先注册“场景加载完成”回调
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -80,14 +60,7 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
         {
             case "LevelScene":
 
-                if (levelLoader == null)
-                {
-                    levelLoader = new LevelLoader();
-                }
-
-                levelLoader.Init();
-                levelLoader.LoadLevel(small_level_Name);
-                levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
+                StartCoroutine(delayLoadLevel());
 
                 break;
             case "MainScene":
@@ -105,7 +78,22 @@ public class GameManager : MonoBehaviourInstanceExample<GameManager>
         }
     }
 
-    
+
+    IEnumerator delayLoadLevel()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        if (levelLoader == null)
+        {
+            levelLoader = FindAnyObjectByType<FragmentAssemblyLevelLoader>();
+        }
+
+        //levelLoader.Init();
+ 
+        levelLoader.RegisterLevelCompletedCallback(OnLevelComplete);
+        levelLoader.LoadLevel(small_level_Name);
+    }
+
 
 
     private void OnDestroy()

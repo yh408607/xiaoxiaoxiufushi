@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e228f684f13173a45a3ea3813aed2101, type: 3}
+  m_Name: level_1
+  m_EditorClassIdentifier: 
+  levelName: level_1
+  backgroundSprite: {fileID: 21300000, guid: c33135c9b9adb114391bd4a3537a932f, type: 3}
+  backgroundPosition: {x: 0, y: 0.5, z: 0}
+  backgroundScale: {x: 1, y: 1, z: 1}
+  backgroundSortingOrder: -10
+  showBackgroundAtRuntime: 0
+  wireframeSprite: {fileID: 21300000, guid: 4ef4bccdf08b51a4290a56f65a29bdad, type: 3}
+  wireframePosition: {x: 0, y: 0.5, z: 0}
+  wireframeScale: {x: 1, y: 1, z: 1}
+  wireframeSortingOrder: -5
+  dustLayerSprite: {fileID: 21300000, guid: 7ed3fa15739c68e48b86bcf2ddb832d8, type: 3}
+  dustLayerSortingOrder: 10
+  dustCompletePercent: 0.95
+  brushSize: 0.08
+  polishLayerSprite: {fileID: 21300000, guid: 6d3978dd899b41641906d917853d6b1f, type: 3}
+  polishLayerSortingOrder: 11
+  polishCompletePercent: 0.95
+  towelSize: 0.08
+  threeStarTime: 60
+  twoStarTime: 120
+  pieces:
+  - id: fragment_01
+    sprite: {fileID: 21300000, guid: bdb2321f1ade0eb4caf2723ebaf20b54, type: 3}
+    startPosition: {x: -4.36, y: -2.7, z: 0}
+    startRotation: 0
+    targetPosition: {x: -0.97, y: 2.75, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.5
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_02
+    sprite: {fileID: 21300000, guid: 3ee63a4f2ccce184a92e1926ba5ac0b9, type: 3}
+    startPosition: {x: -4.5, y: -0.21, z: 0}
+    startRotation: 0
+    targetPosition: {x: 0.837, y: 2.907, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_03
+    sprite: {fileID: 21300000, guid: a3cc6afde48ccee41abe588f1554b588, type: 3}
+    startPosition: {x: -4.68, y: 2.2, z: 0}
+    startRotation: 0
+    targetPosition: {x: -1.369, y: 1.021, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_04
+    sprite: {fileID: 21300000, guid: 7b34253c04adbc34c92fda3d2b322c73, type: 3}
+    startPosition: {x: 4.29, y: -3.11, z: 0}
+    startRotation: 0
+    targetPosition: {x: 0.098, y: 1.197, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_05
+    sprite: {fileID: 21300000, guid: 7370c0a867fd6d54f90f623d7444b345, type: 3}
+    startPosition: {x: 3.78, y: -1.66, z: 0}
+    startRotation: 0
+    targetPosition: {x: -0.304, y: 1.759, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_06
+    sprite: {fileID: 21300000, guid: 51ef5bd5de8427742829ff7e909761d3, type: 3}
+    startPosition: {x: 4.57, y: -0.15, z: 0}
+    startRotation: 0
+    targetPosition: {x: 1.419, y: 0.047, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_07
+    sprite: {fileID: 21300000, guid: a11e995bfae125d4a88c8b9723de319d, type: 3}
+    startPosition: {x: 3.61, y: 1.57, z: 0}
+    startRotation: 0
+    targetPosition: {x: 1.584, y: 1.64, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_08
+    sprite: {fileID: 21300000, guid: 41f4130768dc2bf4db3fe673479c9f73, type: 3}
+    startPosition: {x: 2.82, y: 2.77, z: 0}
+    startRotation: 0
+    targetPosition: {x: 1.05, y: -1.41, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_09
+    sprite: {fileID: 21300000, guid: 94860bc17ed9d274788a43ff25ae7d7c, type: 3}
+    startPosition: {x: 6.72, y: -0.91, z: 0}
+    startRotation: 0
+    targetPosition: {x: 0.07, y: 0.07, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_10
+    sprite: {fileID: 21300000, guid: 868c72d3f041c58408f021ce370a8951, type: 3}
+    startPosition: {x: -2.56, y: -1.96, z: 0}
+    startRotation: 0
+    targetPosition: {x: -0.81, y: -2.203, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_11
+    sprite: {fileID: 21300000, guid: edb4c78f21bda344fa0f1e597b4a00e6, type: 3}
+    startPosition: {x: -6.2, y: 2.24, z: 0}
+    startRotation: 0
+    targetPosition: {x: -1.392, y: -0.551, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1
+  - id: fragment_12
+    sprite: {fileID: 21300000, guid: f45849f6cebdbae4492ceeebf1b73567, type: 3}
+    startPosition: {x: 5.63, y: 1.72, z: 0}
+    startRotation: 0
+    targetPosition: {x: -0.18, y: -1.69, z: 0}
+    targetRotation: 0
+    sortingOrder: 0
+    snapDistance: 0.35
+    rotationTolerance: 12
+    usePolygonCollider: 1

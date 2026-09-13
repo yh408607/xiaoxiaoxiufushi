@@ -45,10 +45,6 @@ public class SelectLevelPanel : BaseUI
     {
         //需要判断是否解锁
 
-
-
-
-
         //解锁后才能加载关卡
         GameManager.Instance.lagerd_level_name = leveName;
         var temp = UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
