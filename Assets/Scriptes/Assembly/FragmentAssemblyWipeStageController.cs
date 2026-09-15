@@ -1,53 +1,56 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// 拼接关卡的擦拭阶段控制器。
-/// 管理刷子除尘和毛巾擦亮两个连续阶段。
-/// </summary>
 public class FragmentAssemblyWipeStageController : MonoBehaviour
 {
     private FragmentAssemblyManager assemblyManager;
-    private FragmentWipeController dustController;
-    private FragmentWipeController polishController;
+    private FragmentWipeController wipeController;
+
     private FragmentAssemblyWipeUITool brushTool;
     private FragmentAssemblyWipeUITool towelTool;
+
     private GameObject wireframeObject;
     private GameObject backgroundObject;
+    private GameObject cleanBackgroundObject;
+
+    private float brushSize;
+    private float towelSize;
+    private float brushCompletePercent;
+    private float towelCompletePercent;
+
     private bool hasCompleted;
 
     public FragmentAssemblyStage CurrentStage { get; private set; }
+
     public event Action OnLevelCompleted;
 
     public void Init(
         FragmentAssemblyManager manager,
-        FragmentWipeController dust,
-        FragmentWipeController polish,
+        FragmentWipeController wipe,
         FragmentAssemblyWipeUITool brush,
         FragmentAssemblyWipeUITool towel,
         GameObject wireframe,
-        GameObject background)
+        GameObject background,
+        GameObject cleanBackground,
+        FragmentAssemblyLevelData data)
     {
         Unsubscribe();
+
         assemblyManager = manager;
-        dustController = dust;
-        polishController = polish;
+        wipeController = wipe;
         brushTool = brush;
         towelTool = towel;
         wireframeObject = wireframe;
         backgroundObject = background;
+        cleanBackgroundObject = cleanBackground;
+
+        brushSize = data.brushSize;
+        towelSize = data.towelSize;
+        brushCompletePercent = data.dustCompletePercent;
+        towelCompletePercent = data.polishCompletePercent;
+
         hasCompleted = false;
         CurrentStage = FragmentAssemblyStage.Assembly;
-
-        Debug.Log(
-            "[FragmentAssemblyWipeStageController] 初始化。"
-            + " assemblyManager=" + (assemblyManager != null)
-            + " dustController=" + (dustController != null)
-            + " polishController=" + (polishController != null)
-            + " brushTool=" + (brushTool != null)
-            + " towelTool=" + (towelTool != null),
-            this
-        );
 
         if (wireframeObject != null)
         {
@@ -59,21 +62,31 @@ public class FragmentAssemblyWipeStageController : MonoBehaviour
             backgroundObject.SetActive(false);
         }
 
-        DisableAllWipeTools();
+        if (cleanBackgroundObject != null)
+        {
+            cleanBackgroundObject.SetActive(false);
+        }
+
+        if (wipeController != null)
+        {
+            wipeController.DisableWiping();
+            wipeController.OnWipeCompleted += HandleWipeCompleted;
+        }
+
+        if (brushTool != null)
+        {
+            brushTool.DisableTool();
+        }
+
+        if (towelTool != null)
+        {
+            towelTool.DisableTool();
+        }
+
         if (assemblyManager != null)
         {
             assemblyManager.OnAssemblyCompleted +=
                 HandleAssemblyCompleted;
-        }
-
-        if (dustController != null)
-        {
-            dustController.OnWipeCompleted += HandleDustCompleted;
-        }
-
-        if (polishController != null)
-        {
-            polishController.OnWipeCompleted += HandlePolishCompleted;
         }
     }
 
@@ -83,14 +96,19 @@ public class FragmentAssemblyWipeStageController : MonoBehaviour
 
         CurrentStage = FragmentAssemblyStage.DustBrushing;
 
-        Debug.Log(
-            "[FragmentAssemblyWipeStageController] 拼接完成，进入刷子除尘阶段。",
-            this
-        );
-
         if (wireframeObject != null)
         {
             wireframeObject.SetActive(false);
+        }
+
+        if (assemblyManager != null)
+        {
+            assemblyManager.SetPiecesVisible(false);
+        }
+
+        if (cleanBackgroundObject != null)
+        {
+            cleanBackgroundObject.SetActive(true);
         }
 
         if (backgroundObject != null)
@@ -98,82 +116,67 @@ public class FragmentAssemblyWipeStageController : MonoBehaviour
             backgroundObject.SetActive(true);
         }
 
-        // 完整底图已经显示后隐藏所有碎片，避免碎片之间的细小边缘或缝隙影响最终效果。
-        if (assemblyManager != null)
-        {
-            assemblyManager.SetPiecesVisible(false);
-        }
+        // 刷子：从 100% Alpha 擦到 50%。
+        wipeController.BeginStage(
+            brushSize,
+            brushCompletePercent,
+            1f,
+            0.5f
+        );
 
-        if (dustController != null)
-        {
-            dustController.EnableWiping();
-        }
+        brushTool.EnableTool();
+    }
 
-        if (brushTool != null)
+    private void HandleWipeCompleted()
+    {
+        if (CurrentStage == FragmentAssemblyStage.DustBrushing)
         {
-            brushTool.EnableTool();
-
-            Debug.Log(
-                "[FragmentAssemblyWipeStageController] 已启用刷子。"
-                + " activeSelf=" + brushTool.gameObject.activeSelf
-                + " isEnabled=" + brushTool.IsEnabled,
-                brushTool
-            );
+            HandleBrushCompleted();
         }
-        else
+        else if (CurrentStage == FragmentAssemblyStage.TowelPolishing)
         {
-            Debug.LogError(
-                "[FragmentAssemblyWipeStageController] 刷子引用为空，无法显示刷子 UI。",
-                this
-            );
+            HandleTowelCompleted();
         }
     }
 
-    private void HandleDustCompleted()
+    private void HandleBrushCompleted()
     {
-        if (CurrentStage != FragmentAssemblyStage.DustBrushing) return;
+        brushTool.DisableTool();
+
+        // 包括未刷到的剩余区域，整图统一为 50%。
+        wipeController.SetUniformAlpha(0.5f);
 
         CurrentStage = FragmentAssemblyStage.TowelPolishing;
-        if (brushTool != null)
-        {
-            brushTool.DisableTool();
-        }
 
-        if (polishController != null)
-        {
-            polishController.EnableWiping();
-        }
+        // 毛巾：清空遮罩和进度，从 50% Alpha 擦到 0%。
+        wipeController.BeginStage(
+            towelSize,
+            towelCompletePercent,
+            0.5f,
+            1f
+        );
 
-        if (towelTool != null)
-        {
-            towelTool.EnableTool();
-        }
+        towelTool.EnableTool();
     }
 
-    private void HandlePolishCompleted()
+    private void HandleTowelCompleted()
     {
-        if (CurrentStage != FragmentAssemblyStage.TowelPolishing ||
-            hasCompleted)
-        {
-            return;
-        }
+        if (hasCompleted) return;
 
         hasCompleted = true;
         CurrentStage = FragmentAssemblyStage.Completed;
-        if (towelTool != null)
+
+        towelTool.DisableTool();
+
+        // 达标后清除全部残留，只保留干净底图。
+        wipeController.SetUniformAlpha(0f);
+
+        if (backgroundObject != null)
         {
-            towelTool.DisableTool();
+            backgroundObject.SetActive(false);
         }
 
         OnLevelCompleted?.Invoke();
-    }
-
-    private void DisableAllWipeTools()
-    {
-        if (dustController != null) dustController.DisableWiping();
-        if (polishController != null) polishController.DisableWiping();
-        if (brushTool != null) brushTool.DisableTool();
-        if (towelTool != null) towelTool.DisableTool();
     }
 
     private void Unsubscribe()
@@ -184,14 +187,9 @@ public class FragmentAssemblyWipeStageController : MonoBehaviour
                 HandleAssemblyCompleted;
         }
 
-        if (dustController != null)
+        if (wipeController != null)
         {
-            dustController.OnWipeCompleted -= HandleDustCompleted;
-        }
-
-        if (polishController != null)
-        {
-            polishController.OnWipeCompleted -= HandlePolishCompleted;
+            wipeController.OnWipeCompleted -= HandleWipeCompleted;
         }
     }
 

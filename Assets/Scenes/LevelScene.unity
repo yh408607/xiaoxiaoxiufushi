@@ -605,7 +605,7 @@ Transform:
   m_GameObject: {fileID: 362276883}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.29, z: 0}
+  m_LocalPosition: {x: 0, y: 0.29, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1359,7 +1359,7 @@ MonoBehaviour:
   levelData: {fileID: 11400000, guid: 315653e5fa53dd04d89af4b6c07c8f1d, type: 2}
   levelRoot: {fileID: 1082755818}
   dragCamera: {fileID: 1633709895}
-  wipeMaterial: {fileID: 0}
+  wipeMaterial: {fileID: 2100000, guid: b47c9a756b156d049aa4791300b67a36, type: 2}
   brushTool: {fileID: 78914976}
   towelTool: {fileID: 752792060}
   fingerDragUI: {fileID: 6700610}

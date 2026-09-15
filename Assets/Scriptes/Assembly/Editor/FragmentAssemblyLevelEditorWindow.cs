@@ -135,18 +135,37 @@ public class FragmentAssemblyLevelEditorWindow : EditorWindow
 
         levelData.backgroundSprite = (Sprite)
             EditorGUILayout.ObjectField(
-                "文物完整底图",
+                "待清洁完整图",
                 levelData.backgroundSprite,
                 typeof(Sprite),
                 false
             );
+
+        levelData.cleanBackgroundSprite = (Sprite)
+                EditorGUILayout.ObjectField(
+                "完全干净底图",
+                 levelData.cleanBackgroundSprite,
+                typeof(Sprite),
+                false);
+
+        EditorGUILayout.HelpBox(
+                "拼接完成后隐藏碎片，同时显示两张完整图。\n" +
+                "刷子把上层图擦到 50% Alpha，毛巾再擦到 0%。\n" +
+                "两张图共用位置和缩放，应保持相同尺寸、Pixels Per Unit 和 Pivot。",
+                 MessageType.Info);
 
         levelData.backgroundPosition =
             EditorGUILayout.Vector3Field(
                 "底图位置",
                 levelData.backgroundPosition
             );
-
+        if (levelData.backgroundSprite == null ||levelData.cleanBackgroundSprite == null)
+        {
+            EditorGUILayout.HelpBox(
+                "请同时配置待清洁完整图和完全干净底图。",
+                MessageType.Warning
+            );
+        }
         levelData.backgroundScale =
             EditorGUILayout.Vector3Field(
                 "底图缩放",
@@ -159,16 +178,16 @@ public class FragmentAssemblyLevelEditorWindow : EditorWindow
                 levelData.backgroundSortingOrder
             );
 
-        levelData.showBackgroundAtRuntime =
-            EditorGUILayout.Toggle(
-                "运行时显示完整底图",
-                levelData.showBackgroundAtRuntime
-            );
+        //levelData.showBackgroundAtRuntime =
+        //    EditorGUILayout.Toggle(
+        //        "运行时显示完整底图",
+        //        levelData.showBackgroundAtRuntime
+        //    );
 
-        EditorGUILayout.HelpBox(
-            "完整底图只建议用于编辑器对齐。关闭后，运行时画面只显示实际碎片。",
-            MessageType.Info
-        );
+        //EditorGUILayout.HelpBox(
+        //    "完整底图只建议用于编辑器对齐。关闭后，运行时画面只显示实际碎片。",
+        //    MessageType.Info
+        //);
 
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField(
@@ -213,19 +232,19 @@ public class FragmentAssemblyLevelEditorWindow : EditorWindow
             EditorStyles.boldLabel
         );
 
-        levelData.dustLayerSprite = (Sprite)
-            EditorGUILayout.ObjectField(
-                "灰尘层图片",
-                levelData.dustLayerSprite,
-                typeof(Sprite),
-                false
-            );
+        //levelData.dustLayerSprite = (Sprite)
+        //    EditorGUILayout.ObjectField(
+        //        "灰尘层图片",
+        //        levelData.dustLayerSprite,
+        //        typeof(Sprite),
+        //        false
+        //    );
 
-        levelData.dustLayerSortingOrder =
-            EditorGUILayout.IntField(
-                "灰尘层级",
-                levelData.dustLayerSortingOrder
-            );
+        //levelData.dustLayerSortingOrder =
+        //    EditorGUILayout.IntField(
+        //        "灰尘层级",
+        //        levelData.dustLayerSortingOrder
+        //    );
 
         levelData.dustCompletePercent =
             EditorGUILayout.Slider(
@@ -247,19 +266,19 @@ public class FragmentAssemblyLevelEditorWindow : EditorWindow
             EditorStyles.boldLabel
         );
 
-        levelData.polishLayerSprite = (Sprite)
-            EditorGUILayout.ObjectField(
-                "污渍层图片",
-                levelData.polishLayerSprite,
-                typeof(Sprite),
-                false
-            );
+        //levelData.polishLayerSprite = (Sprite)
+        //    EditorGUILayout.ObjectField(
+        //        "污渍层图片",
+        //        levelData.polishLayerSprite,
+        //        typeof(Sprite),
+        //        false
+        //    );
 
-        levelData.polishLayerSortingOrder =
-            EditorGUILayout.IntField(
-                "污渍层级",
-                levelData.polishLayerSortingOrder
-            );
+        //levelData.polishLayerSortingOrder =
+        //    EditorGUILayout.IntField(
+        //        "污渍层级",
+        //        levelData.polishLayerSortingOrder
+        //    );
 
         levelData.polishCompletePercent =
             EditorGUILayout.Slider(

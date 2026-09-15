@@ -1,101 +1,260 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// 拼接关卡的通用擦拭层控制器。
-/// 每个擦拭阶段拥有独立的遮罩、材质和完成比例。
-/// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class FragmentWipeController : MonoBehaviour
 {
-    [SerializeField] private Material wipeMaterial;
-    [SerializeField] private int maskTextureSize = 512;
-    [SerializeField] private float brushSize = 0.08f;
-    [SerializeField, Range(0f, 1f)] private float completePercent = 0.95f;
-    [SerializeField] private float checkInterval = 0.2f;
+    [SerializeField, Min(32)]
+    private int maskTextureSize = 512;
+
+    [SerializeField, Min(0.01f)]
+    private float checkInterval = 0.2f;
 
     private SpriteRenderer spriteRenderer;
+    private Material originalMaterial;
     private Material runtimeMaterial;
-    private RenderTexture maskRenderTexture;
-    private Texture2D readableMaskTexture;
-    private Texture2D brushTexture;
+    private Texture2D maskTexture;
+
+    private Color32[] maskPixels;
+    private bool[] validPixels;
+
+    private int validPixelCount;
+    private int wipedPixelCount;
+    private int resolution;
+
+    private float brushSize;
+    private float completePercent;
+    private float checkTimer;
+
+    private bool initialized;
     private bool isWipingEnabled;
     private bool isCompleted;
-    private float checkTimer;
+    private bool maskDirty;
 
     public bool IsCompleted => isCompleted;
     public bool IsWipingEnabled => isWipingEnabled;
+
+    public float WipedPercent => validPixelCount > 0
+        ? (float)wipedPixelCount / validPixelCount
+        : 0f;
+
     public event Action OnWipeCompleted;
 
-    private void Awake()
+    /// <summary>
+    /// 为同一张完整图初始化一次擦拭资源。
+    /// </summary>
+    public bool Init(Material material)
     {
+        ReleaseResources();
+
         spriteRenderer = GetComponent<SpriteRenderer>();
+        Sprite sprite = spriteRenderer.sprite;
+
+        if (sprite == null)
+        {
+            Debug.LogError("擦拭完整图未配置。", this);
+            return false;
+        }
+
+        if (sprite.packed)
+        {
+            Debug.LogError(
+                "擦拭完整图请使用独立 Sprite，不要加入 Sprite Atlas。",
+                this
+            );
+            return false;
+        }
+
+        if (material == null ||
+            material.shader == null ||
+            material.shader.name != "Custom/FragmentAssemblyWipe")
+        {
+            Debug.LogError(
+                "请配置使用 Custom/FragmentAssemblyWipe 的材质。",
+                this
+            );
+            return false;
+        }
+
+        resolution = Mathf.Max(32, maskTextureSize);
+
+        maskPixels = new Color32[resolution * resolution];
+        validPixels = new bool[maskPixels.Length];
+
+        BuildValidPixels(sprite);
+
+        if (validPixelCount == 0)
+        {
+            Debug.LogError("待清洁完整图没有有效的非透明区域。", this);
+            return false;
+        }
+
+        originalMaterial = spriteRenderer.sharedMaterial;
+        runtimeMaterial = new Material(material);
+
+        maskTexture = new Texture2D(
+            resolution,
+            resolution,
+            TextureFormat.RGBA32,
+            false,
+            true
+        );
+        maskTexture.wrapMode = TextureWrapMode.Clamp;
+        maskTexture.filterMode = FilterMode.Bilinear;
+
+        Bounds bounds = sprite.bounds;
+
+        runtimeMaterial.SetVector(
+            "_LocalBounds",
+            new Vector4(
+                bounds.min.x,
+                bounds.min.y,
+                bounds.size.x,
+                bounds.size.y
+            )
+        );
+
+        runtimeMaterial.SetTexture("_MaskTex", maskTexture);
+        spriteRenderer.sharedMaterial = runtimeMaterial;
+
+        initialized = true;
+        isCompleted = false;
+
+        SetUniformAlpha(1f);
+        DisableWiping();
+
+        return true;
     }
 
-    public void Init(Material material, float size, float percent)
+    /// <summary>
+    /// 只在初始化时读取原图 Alpha，无需打开图片 Read/Write。
+    /// </summary>
+    private void BuildValidPixels(Sprite sprite)
     {
-        wipeMaterial = material;
+        Texture2D source = sprite.texture;
+        Rect rect = sprite.rect;
+
+        Vector2 scale = new Vector2(
+            rect.width / source.width,
+            rect.height / source.height
+        );
+
+        Vector2 offset = new Vector2(
+            rect.x / source.width,
+            rect.y / source.height
+        );
+
+        RenderTexture temporary = RenderTexture.GetTemporary(
+            resolution,
+            resolution,
+            0,
+            RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear
+        );
+
+        RenderTexture previous = RenderTexture.active;
+        Texture2D readable = null;
+
+        try
+        {
+            Graphics.Blit(source, temporary, scale, offset);
+            RenderTexture.active = temporary;
+
+            readable = new Texture2D(
+                resolution,
+                resolution,
+                TextureFormat.RGBA32,
+                false,
+                true
+            );
+
+            readable.ReadPixels(
+                new Rect(0, 0, resolution, resolution),
+                0,
+                0
+            );
+            readable.Apply();
+
+            Color32[] sourcePixels = readable.GetPixels32();
+
+            validPixelCount = 0;
+
+            for (int i = 0; i < sourcePixels.Length; i++)
+            {
+                // 排除透明背景和极淡的边缘。
+                validPixels[i] = sourcePixels[i].a > 20;
+
+                if (validPixels[i])
+                {
+                    validPixelCount++;
+                }
+            }
+        }
+        finally
+        {
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(temporary);
+
+            if (readable != null)
+            {
+                DestroyResource(readable);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 每次进入一个阶段，都重置遮罩和进度。
+    /// </summary>
+    public void BeginStage(
+        float size,
+        float percent,
+        float startAlpha,
+        float eraseStrength)
+    {
+        if (!initialized) return;
+
         brushSize = Mathf.Max(0.001f, size);
         completePercent = Mathf.Clamp01(percent);
-        InitializeMask();
-    }
 
-    private void InitializeMask()
-    {
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-        }
-
-        if (wipeMaterial == null)
-        {
-            Shader shader = Shader.Find("Custom/DustWipe");
-            if (shader == null)
-            {
-                Debug.LogError(
-                    "FragmentWipeController：找不到 Custom/DustWipe Shader。"
-                );
-                return;
-            }
-
-            wipeMaterial = new Material(shader);
-        }
-
-        ReleaseMaskResources();
-        runtimeMaterial = new Material(wipeMaterial);
-        maskRenderTexture = new RenderTexture(
-            maskTextureSize,
-            maskTextureSize,
-            0,
-            RenderTextureFormat.ARGB32
-        );
-        maskRenderTexture.Create();
-
-        readableMaskTexture = new Texture2D(
-            maskTextureSize,
-            maskTextureSize,
-            TextureFormat.RGBA32,
-            false
-        );
+        isCompleted = false;
+        isWipingEnabled = true;
+        checkTimer = 0f;
 
         ClearMask();
-        runtimeMaterial.SetTexture("_MaskTex", maskRenderTexture);
-        spriteRenderer.material = runtimeMaterial;
-        isWipingEnabled = false;
-        isCompleted = false;
-        checkTimer = 0f;
+
+        runtimeMaterial.SetFloat(
+            "_StageAlpha",
+            Mathf.Clamp01(startAlpha)
+        );
+
+        runtimeMaterial.SetFloat(
+            "_EraseStrength",
+            Mathf.Clamp01(eraseStrength)
+        );
+
+        spriteRenderer.enabled = true;
     }
 
-    public void EnableWiping()
+    /// <summary>
+    /// 收尾到统一透明度，同时关闭擦拭。
+    /// </summary>
+    public void SetUniformAlpha(float alpha)
     {
-        if (isCompleted) return;
-        isWipingEnabled = true;
-        spriteRenderer.enabled = true;
+        if (!initialized) return;
+
+        isWipingEnabled = false;
+        ClearMask();
+
+        runtimeMaterial.SetFloat("_StageAlpha", Mathf.Clamp01(alpha));
+        runtimeMaterial.SetFloat("_EraseStrength", 0f);
+
+        spriteRenderer.enabled = alpha > 0f;
     }
 
     public void DisableWiping()
     {
         isWipingEnabled = false;
+
         if (spriteRenderer != null)
         {
             spriteRenderer.enabled = false;
@@ -104,175 +263,175 @@ public class FragmentWipeController : MonoBehaviour
 
     public void WipeAtWorldPosition(Vector3 worldPosition)
     {
-        if (!isWipingEnabled || isCompleted || spriteRenderer.sprite == null)
+        if (!initialized || !isWipingEnabled || isCompleted) return;
+
+        Vector3 localPosition =
+            transform.InverseTransformPoint(worldPosition);
+
+        Bounds bounds = spriteRenderer.sprite.bounds;
+
+        // 只检查 XY，避免 Z 浮点误差影响擦拭。
+        if (localPosition.x < bounds.min.x ||
+            localPosition.x > bounds.max.x ||
+            localPosition.y < bounds.min.y ||
+            localPosition.y > bounds.max.y)
         {
             return;
         }
 
-        if (!TryWorldToSpriteUV(worldPosition, out Vector2 uv))
+        float u = Mathf.InverseLerp(
+            bounds.min.x, bounds.max.x, localPosition.x
+        );
+        float v = Mathf.InverseLerp(
+            bounds.min.y, bounds.max.y, localPosition.y
+        );
+
+        if (PaintMask(new Vector2(u, v)))
         {
-            return;
+            SfxManager.Instance?.PlayIfNotPlaying(
+                SfxId.DustWipe,
+                0.8f
+            );
+        }
+    }
+
+    private bool PaintMask(Vector2 uv)
+    {
+        float centerX = uv.x * (resolution - 1);
+        float centerY = uv.y * (resolution - 1);
+        float radius = Mathf.Max(1f, brushSize * resolution);
+        float radiusSquared = radius * radius;
+
+        int minX = Mathf.Max(0, Mathf.FloorToInt(centerX - radius));
+        int maxX = Mathf.Min(
+            resolution - 1,
+            Mathf.CeilToInt(centerX + radius)
+        );
+        int minY = Mathf.Max(0, Mathf.FloorToInt(centerY - radius));
+        int maxY = Mathf.Min(
+            resolution - 1,
+            Mathf.CeilToInt(centerY + radius)
+        );
+
+        bool changed = false;
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                float dx = x - centerX;
+                float dy = y - centerY;
+
+                if (dx * dx + dy * dy > radiusSquared) continue;
+
+                int index = y * resolution + x;
+
+                // 重复擦过的像素不重复累计，也不继续降低 Alpha。
+                if (maskPixels[index].r == 255) continue;
+
+                maskPixels[index] = new Color32(255, 255, 255, 255);
+
+                if (validPixels[index])
+                {
+                    wipedPixelCount++;
+                }
+
+                changed = true;
+            }
         }
 
-        DrawBrushToMask(uv);
-
-        // 刷子和抹布共用旧流程中的擦拭音效，并避免拖动时重复叠加播放。
-        SfxManager.Instance?.PlayIfNotPlaying(SfxId.DustWipe, 0.8f);
+        maskDirty |= changed;
+        return changed;
     }
 
     private void Update()
     {
-        if (!isWipingEnabled || isCompleted) return;
+        if (!initialized || !isWipingEnabled || isCompleted) return;
 
         checkTimer += Time.deltaTime;
+
         if (checkTimer < checkInterval) return;
 
         checkTimer = 0f;
-        if (GetWipedPercent() >= completePercent)
-        {
-            CompleteWipe();
-        }
-    }
 
-    private bool TryWorldToSpriteUV(
-        Vector3 worldPosition,
-        out Vector2 uv)
-    {
-        uv = Vector2.zero;
-        Vector3 localPosition =
-            transform.InverseTransformPoint(worldPosition);
-        Bounds bounds = spriteRenderer.sprite.bounds;
+        if (WipedPercent < completePercent) return;
 
-        if (!bounds.Contains(localPosition))
-        {
-            return false;
-        }
-
-        uv = new Vector2(
-            Mathf.InverseLerp(bounds.min.x, bounds.max.x, localPosition.x),
-            Mathf.InverseLerp(bounds.min.y, bounds.max.y, localPosition.y)
-        );
-        return true;
-    }
-
-    private void DrawBrushToMask(Vector2 uv)
-    {
-        RenderTexture previous = RenderTexture.active;
-        RenderTexture.active = maskRenderTexture;
-        GL.PushMatrix();
-        GL.LoadPixelMatrix(0, maskTextureSize, maskTextureSize, 0);
-
-        int centerX = Mathf.RoundToInt(uv.x * maskTextureSize);
-        int centerY = Mathf.RoundToInt((1f - uv.y) * maskTextureSize);
-        float radius = brushSize * maskTextureSize;
-
-        Graphics.DrawTexture(
-            new Rect(
-                centerX - radius,
-                centerY - radius,
-                radius * 2f,
-                radius * 2f
-            ),
-            GetBrushTexture()
-        );
-
-        GL.PopMatrix();
-        RenderTexture.active = previous;
-    }
-
-    private float GetWipedPercent()
-    {
-        RenderTexture previous = RenderTexture.active;
-        RenderTexture.active = maskRenderTexture;
-        readableMaskTexture.ReadPixels(
-            new Rect(0, 0, maskTextureSize, maskTextureSize),
-            0,
-            0
-        );
-        readableMaskTexture.Apply();
-        RenderTexture.active = previous;
-
-        Color32[] pixels = readableMaskTexture.GetPixels32();
-        int wipedCount = 0;
-        foreach (Color32 pixel in pixels)
-        {
-            if (pixel.r > 20) wipedCount++;
-        }
-
-        return (float)wipedCount / pixels.Length;
-    }
-
-    private Texture2D GetBrushTexture()
-    {
-        if (brushTexture != null) return brushTexture;
-
-        const int size = 128;
-        brushTexture = new Texture2D(
-            size,
-            size,
-            TextureFormat.RGBA32,
-            false
-        );
-
-        Vector2 center = new Vector2(size / 2f, size / 2f);
-        float radius = size / 2f;
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                float distance = Vector2.Distance(
-                    new Vector2(x, y),
-                    center
-                );
-                float alpha = Mathf.Clamp01(1f - distance / radius);
-                brushTexture.SetPixel(
-                    x,
-                    y,
-                    new Color(1f, 1f, 1f, alpha)
-                );
-            }
-        }
-
-        brushTexture.Apply();
-        return brushTexture;
-    }
-
-    private void CompleteWipe()
-    {
         isCompleted = true;
         isWipingEnabled = false;
-        spriteRenderer.enabled = false;
+
+        // 下一阶段的显示和 Alpha 由阶段控制器处理。
         OnWipeCompleted?.Invoke();
+    }
+
+    private void LateUpdate()
+    {
+        if (initialized && maskDirty)
+        {
+            UploadMask();
+        }
     }
 
     private void ClearMask()
     {
-        RenderTexture previous = RenderTexture.active;
-        RenderTexture.active = maskRenderTexture;
-        GL.Clear(true, true, Color.black);
-        RenderTexture.active = previous;
+        Array.Clear(maskPixels, 0, maskPixels.Length);
+        wipedPixelCount = 0;
+        UploadMask();
     }
 
-    private void ReleaseMaskResources()
+    private void UploadMask()
     {
-        if (maskRenderTexture != null)
+        maskTexture.SetPixels32(maskPixels);
+        maskTexture.Apply(false, false);
+        maskDirty = false;
+    }
+
+    private void ReleaseResources()
+    {
+        initialized = false;
+        isWipingEnabled = false;
+
+        if (spriteRenderer != null &&
+            runtimeMaterial != null &&
+            spriteRenderer.sharedMaterial == runtimeMaterial)
         {
-            maskRenderTexture.Release();
-            Destroy(maskRenderTexture);
-            maskRenderTexture = null;
+            spriteRenderer.sharedMaterial = originalMaterial;
         }
 
-        if (readableMaskTexture != null)
+        if (runtimeMaterial != null)
         {
-            Destroy(readableMaskTexture);
-            readableMaskTexture = null;
+            DestroyResource(runtimeMaterial);
+        }
+
+        if (maskTexture != null)
+        {
+            DestroyResource(maskTexture);
+        }
+
+        runtimeMaterial = null;
+        maskTexture = null;
+        originalMaterial = null;
+        maskPixels = null;
+        validPixels = null;
+
+        validPixelCount = 0;
+        wipedPixelCount = 0;
+        maskDirty = false;
+    }
+
+    private static void DestroyResource(UnityEngine.Object resource)
+    {
+        if (Application.isPlaying)
+        {
+            UnityEngine.Object.Destroy(resource);
+        }
+        else
+        {
+            UnityEngine.Object.DestroyImmediate(resource);
         }
     }
 
     private void OnDestroy()
     {
-        ReleaseMaskResources();
-        if (runtimeMaterial != null) Destroy(runtimeMaterial);
-        if (brushTexture != null) Destroy(brushTexture);
+        ReleaseResources();
     }
 }

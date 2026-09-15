@@ -18,7 +18,7 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
     [SerializeField] private Camera dragCamera;
 
     [Header("擦拭材质")]
-    [Tooltip("使用 Custom/DustWipe Shader 的材质。为空时运行时自动创建。")]
+    [Tooltip("请配置使用 Custom/FragmentAssemblyWipe Shader 的材质。")]
     [SerializeField] private Material wipeMaterial;
 
     [Header("UI 擦拭工具")]
@@ -34,13 +34,13 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
     [SerializeField] private bool buildOnStart = true;
 
     // 记录本次生成的对象，方便重新生成或清理。
-    private readonly List<GameObject> generatedObjects =
-        new List<GameObject>();
+    private readonly List<GameObject> generatedObjects =new List<GameObject>();
 
     // 当前关卡的拼接管理器。
     private FragmentAssemblyManager assemblyManager;
     private GameObject wireframeObject;
     private GameObject backgroundObject;
+    private GameObject cleanBackgroundObject;
 
     /// <summary>
     /// 当前使用的关卡数据。
@@ -132,18 +132,36 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
     /// </summary>
     private void BuildBackground()
     {
-        if (levelData.backgroundSprite == null)
+        if (levelData.backgroundSprite == null ||
+            levelData.cleanBackgroundSprite == null)
         {
-            Debug.LogWarning(
-                "FragmentAssemblyLevelBuilder：没有配置文物底图。"
+            Debug.LogError(
+                "请同时配置待清洁完整图和完全干净底图。",
+                this
             );
             return;
         }
 
-        backgroundObject = new GameObject(
-            "AssemblyBackground"
-        );
+        // 下层：完全干净底图。
+        cleanBackgroundObject = new GameObject("CleanBackground");
+        cleanBackgroundObject.transform.SetParent(levelRoot);
+        cleanBackgroundObject.transform.position =
+            levelData.backgroundPosition;
+        cleanBackgroundObject.transform.localScale =
+            levelData.backgroundScale;
 
+        SpriteRenderer cleanRenderer =
+            cleanBackgroundObject.AddComponent<SpriteRenderer>();
+
+        cleanRenderer.sprite = levelData.cleanBackgroundSprite;
+        cleanRenderer.sortingOrder =
+            levelData.backgroundSortingOrder - 1;
+
+        cleanBackgroundObject.SetActive(false);
+        generatedObjects.Add(cleanBackgroundObject);
+
+        // 上层：接受两阶段擦拭的完整图。
+        backgroundObject = new GameObject("AssemblyBackground");
         backgroundObject.transform.SetParent(levelRoot);
         backgroundObject.transform.position =
             levelData.backgroundPosition;
@@ -154,8 +172,7 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
             backgroundObject.AddComponent<SpriteRenderer>();
 
         renderer.sprite = levelData.backgroundSprite;
-        renderer.sortingOrder =
-            levelData.backgroundSortingOrder;
+        renderer.sortingOrder = levelData.backgroundSortingOrder;
 
         backgroundObject.SetActive(false);
         generatedObjects.Add(backgroundObject);
@@ -317,25 +334,14 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
     /// <summary>
     /// 创建灰尘层、污渍层和两个阶段之间的切换控制器。
     /// </summary>
+    /// 
+
     private void BuildWipeStages()
     {
-        FragmentWipeController dustController =
-            CreateWipeLayer(
-                "DustLayer",
-                levelData.dustLayerSprite,
-                levelData.dustLayerSortingOrder,
-                levelData.brushSize,
-                levelData.dustCompletePercent
-            );
-
-        FragmentWipeController polishController =
-            CreateWipeLayer(
-                "PolishLayer",
-                levelData.polishLayerSprite,
-                levelData.polishLayerSortingOrder,
-                levelData.towelSize,
-                levelData.polishCompletePercent
-            );
+        if (backgroundObject == null || cleanBackgroundObject == null)
+        {
+            return;
+        }
 
         if (brushTool == null || towelTool == null)
         {
@@ -355,54 +361,57 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
             }
         }
 
-        if (brushTool == null)
+        if (brushTool == null || towelTool == null)
         {
-            Debug.LogWarning(
-                "FragmentAssemblyLevelBuilder：没有配置刷子 UI 工具。"
+            Debug.LogError("请配置刷子和毛巾 UI 工具。", this);
+            return;
+        }
+
+        if (wipeMaterial == null ||
+            wipeMaterial.shader == null ||
+            wipeMaterial.shader.name != "Custom/FragmentAssemblyWipe")
+        {
+            Debug.LogError(
+                "请给生成器配置使用 Custom/FragmentAssemblyWipe 的材质。",
+                this
             );
+            return;
         }
 
-        if (towelTool == null)
+        FragmentWipeController wipeController =
+            backgroundObject.AddComponent<FragmentWipeController>();
+
+        if (!wipeController.Init(wipeMaterial))
         {
-            Debug.LogWarning(
-                "FragmentAssemblyLevelBuilder：没有配置毛巾 UI 工具。"
-            );
+            return;
         }
 
-        if (brushTool != null)
-        {
-            brushTool.Init(dustController, dragCamera);
-        }
+        // 两个工具操作同一个完整图。
+        brushTool.Init(wipeController, dragCamera);
+        towelTool.Init(wipeController, dragCamera);
 
-        if (towelTool != null)
-        {
-            towelTool.Init(polishController, dragCamera);
-        }
+        GameObject stageObject =
+            new GameObject("FragmentAssemblyWipeStageController");
 
-        GameObject stageObject = new GameObject(
-            "FragmentAssemblyWipeStageController"
-        );
         stageObject.transform.SetParent(levelRoot);
+        generatedObjects.Add(stageObject);
 
         FragmentAssemblyWipeStageController stageController =
-            stageObject.AddComponent<
-                FragmentAssemblyWipeStageController
-            >();
+            stageObject.AddComponent<FragmentAssemblyWipeStageController>();
 
         stageController.Init(
             assemblyManager,
-            dustController,
-            polishController,
+            wipeController,
             brushTool,
             towelTool,
             wireframeObject,
-            backgroundObject
+            backgroundObject,
+            cleanBackgroundObject,
+            levelData
         );
 
         FragmentAssemblyScoreController scoreController =
-            stageObject.AddComponent<
-                FragmentAssemblyScoreController
-            >();
+            stageObject.AddComponent<FragmentAssemblyScoreController>();
 
         scoreController.Init(
             stageController,
@@ -410,43 +419,42 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
             levelData.threeStarTime,
             levelData.twoStarTime
         );
-
-        generatedObjects.Add(stageObject);
     }
+
 
     /// <summary>
     /// 创建一个世界空间擦拭层。
     /// </summary>
-    private FragmentWipeController CreateWipeLayer(
-        string objectName,
-        Sprite layerSprite,
-        int sortingOrder,
-        float size,
-        float completePercent)
-    {
-        if (layerSprite == null)
-        {
-            return null;
-        }
+    //private FragmentWipeController CreateWipeLayer(
+    //    string objectName,
+    //    Sprite layerSprite,
+    //    int sortingOrder,
+    //    float size,
+    //    float completePercent)
+    //{
+    //    if (layerSprite == null)
+    //    {
+    //        return null;
+    //    }
 
-        GameObject layerObject = new GameObject(objectName);
-        layerObject.transform.SetParent(levelRoot);
-        layerObject.transform.position = levelData.backgroundPosition;
-        layerObject.transform.localScale = levelData.backgroundScale;
+    //    GameObject layerObject = new GameObject(objectName);
+    //    layerObject.transform.SetParent(levelRoot);
+    //    layerObject.transform.position = levelData.backgroundPosition;
+    //    layerObject.transform.localScale = levelData.backgroundScale;
 
-        SpriteRenderer renderer =
-            layerObject.AddComponent<SpriteRenderer>();
-        renderer.sprite = layerSprite;
-        renderer.sortingOrder = sortingOrder;
+    //    SpriteRenderer renderer =
+    //        layerObject.AddComponent<SpriteRenderer>();
+    //    renderer.sprite = layerSprite;
+    //    renderer.sortingOrder = sortingOrder;
 
-        FragmentWipeController controller =
-            layerObject.AddComponent<FragmentWipeController>();
-        controller.Init(wipeMaterial, size, completePercent);
-        controller.DisableWiping();
+    //    FragmentWipeController controller =
+    //        layerObject.AddComponent<FragmentWipeController>();
+    //    controller.Init(wipeMaterial, size, completePercent);
+    //    controller.DisableWiping();
 
-        generatedObjects.Add(layerObject);
-        return controller;
-    }
+    //    generatedObjects.Add(layerObject);
+    //    return controller;
+    //}
 
     /// <summary>
     /// 清理当前生成的关卡对象。
@@ -477,10 +485,16 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
 #endif
         }
 
+        //generatedObjects.Clear();
+        //assemblyManager = null;
+        //wireframeObject = null;
+        //backgroundObject = null;
+
         generatedObjects.Clear();
         assemblyManager = null;
         wireframeObject = null;
         backgroundObject = null;
+        cleanBackgroundObject = null;
     }
 
     private void OnDestroy()

@@ -15,9 +15,12 @@ public class FragmentAssemblyLevelData : ScriptableObject
     [Header("关卡基础信息")]
     public string levelName = "New Fragment Assembly Level";
 
-    [Header("编辑器参考图")]
-    [Tooltip("仅用于编辑器中对齐碎片，运行时默认不会显示。")]
+    [Header("完整底图")]
+    [Tooltip("拼接完成后显示在上层，刷子和毛巾分两个阶段擦除这张图。")]
     public Sprite backgroundSprite;
+
+    [Tooltip("位于待清洁完整图下方，擦拭后逐渐露出。")]
+    public Sprite cleanBackgroundSprite;
 
     [Header("底图变换")]
     public Vector3 backgroundPosition = Vector3.zero;
