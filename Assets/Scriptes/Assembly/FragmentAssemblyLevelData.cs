@@ -15,6 +15,10 @@ public class FragmentAssemblyLevelData : ScriptableObject
     [Header("关卡基础信息")]
     public string levelName = "New Fragment Assembly Level";
 
+    [Header("文物讲解")]
+    [Tooltip("打开文物展示面板时播放的当前关卡讲解音频。")]
+    public AudioClip narrationClip;
+
     [Header("完整底图")]
     [Tooltip("拼接完成后显示在上层，刷子和毛巾分两个阶段擦除这张图。")]
     public Sprite backgroundSprite;

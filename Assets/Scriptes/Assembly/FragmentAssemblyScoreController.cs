@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -11,7 +10,6 @@ public class FragmentAssemblyScoreController : MonoBehaviour
     private FragmentAssemblyWipeStageController stageController;
     private LevelScoreTimer scoreTimer;
     private LevelScoreRuntimeUI runtimeScoreUI;
-    private string levelName;
     private bool resultPublished;
 
     public LevelScoreTimer ScoreTimer => scoreTimer;
@@ -29,7 +27,6 @@ public class FragmentAssemblyScoreController : MonoBehaviour
         Unsubscribe();
 
         stageController = stage;
-        levelName = assemblyLevelName;
         resultPublished = false;
 
         scoreTimer = GetComponent<LevelScoreTimer>();
@@ -60,23 +57,8 @@ public class FragmentAssemblyScoreController : MonoBehaviour
         resultPublished = true;
         LevelScoreResult result = scoreTimer.StopTimer();
 
-        if (string.IsNullOrEmpty(levelName))
-        {
-            Debug.LogError(
-                "FragmentAssemblyScoreController：关卡名称为空，无法保存评分。"
-            );
-        }
-        else if (LevelStarSystem.Instance != null)
-        {
-            LevelStarSystem.Instance.SaveLevelResult(
-                levelName,
-                result,
-                true
-            );
-        }
-
+        // 保存成绩和显示结算界面由外层 GameManager 统一处理。
         OnLevelCompletedWithScore?.Invoke(result);
-        OnLevelComplete(result);
     }
 
     private void Unsubscribe()
@@ -96,23 +78,4 @@ public class FragmentAssemblyScoreController : MonoBehaviour
         }
     }
 
-    private void OnLevelComplete(LevelScoreResult scoreResult)
-    {
-        // 处理关卡完成后的逻辑，例如显示分数、解锁下一关等
-        // UIPanelManager.Instance.ShownPanel("UIPanel/level_panel");
-        //先等几秒再显示关卡完成面板
-        StartCoroutine(ShowLevelCompletePanelAfterDelay(scoreResult, 1f));
-
-        //保存关卡评分
-        var levelName = 1 + "_" + 1;
-        LevelStarSystem.Instance.SaveLevelResult(levelName, scoreResult, true);
-    }
-
-    IEnumerator ShowLevelCompletePanelAfterDelay(LevelScoreResult scoreResult, float v)
-    {
-        yield return new WaitForSeconds(v);
-        var ui = UIPanelManager.Instance.ShownPanel("UIPanel/complete_panel") as LevelCompleteUIPanel;
-        yield return ui.Show(scoreResult);
-
-    }
 }

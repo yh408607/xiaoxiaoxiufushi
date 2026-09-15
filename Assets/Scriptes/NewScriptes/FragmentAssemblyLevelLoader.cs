@@ -16,6 +16,11 @@ public class FragmentAssemblyLevelLoader : MonoBehaviour
     [SerializeField]
     private string resourcesFolder = "AssemblyLevels";
 
+    private FragmentAssemblyScoreController currentScoreController;
+
+    public FragmentAssemblyLevelData CurrentLevelData =>
+        builder != null ? builder.LevelData : null;
+
     /// <summary>
     /// 关卡完成事件
     /// </summary>
@@ -55,17 +60,23 @@ public class FragmentAssemblyLevelLoader : MonoBehaviour
             return;
         }
 
+        UnsubscribeScoreController();
+
         builder.SetLevelData(data);
         builder.BuildLevel();
 
-        FragmentAssemblyScoreController scoreController = builder.GetComponentInChildren< FragmentAssemblyScoreController>();
+        currentScoreController = builder.ScoreController;
 
-        if (scoreController != null)
+        if (currentScoreController == null)
         {
-            scoreController.OnLevelCompletedWithScore -= HandleLevelCompleted;
-
-             scoreController.OnLevelCompletedWithScore += HandleLevelCompleted;
+            Debug.LogError(
+                "关卡评分控制器未生成，请检查关卡生成过程中的错误。",
+                this
+            );
+            return;
         }
+
+        currentScoreController.OnLevelCompletedWithScore += HandleLevelCompleted;
 
         Debug.Log(
             "FragmentAssemblyLevelLoader 加载关卡成功：" + data.levelName
@@ -81,5 +92,20 @@ public class FragmentAssemblyLevelLoader : MonoBehaviour
     private void HandleLevelCompleted(LevelScoreResult result)
     {
         OnLevelCompletedWithScore?.Invoke(result);
+    }
+
+    private void UnsubscribeScoreController()
+    {
+        if (currentScoreController != null)
+        {
+            currentScoreController.OnLevelCompletedWithScore -= HandleLevelCompleted;
+        }
+
+        currentScoreController = null;
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeScoreController();
     }
 }

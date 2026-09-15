@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class FragmentAssemblyLevelBuilder : MonoBehaviour
 {
+    public FragmentAssemblyScoreController ScoreController { get; private set; }
+
     [Header("关卡数据")]
     [SerializeField] private FragmentAssemblyLevelData levelData;
 
@@ -399,21 +401,13 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
         FragmentAssemblyWipeStageController stageController =
             stageObject.AddComponent<FragmentAssemblyWipeStageController>();
 
-        stageController.Init(
-            assemblyManager,
-            wipeController,
-            brushTool,
-            towelTool,
-            wireframeObject,
-            backgroundObject,
-            cleanBackgroundObject,
-            levelData
+        stageController.Init( assemblyManager, wipeController,  brushTool,  towelTool, wireframeObject,   backgroundObject,    cleanBackgroundObject,   levelData
         );
 
-        FragmentAssemblyScoreController scoreController =
+        ScoreController =
             stageObject.AddComponent<FragmentAssemblyScoreController>();
 
-        scoreController.Init(
+        ScoreController.Init(
             stageController,
             levelData.levelName,
             levelData.threeStarTime,
@@ -461,6 +455,8 @@ public class FragmentAssemblyLevelBuilder : MonoBehaviour
     /// </summary>
     public void ClearLevel()
     {
+        ScoreController = null;
+
         for (int i = generatedObjects.Count - 1; i >= 0; i--)
         {
             GameObject generatedObject = generatedObjects[i];

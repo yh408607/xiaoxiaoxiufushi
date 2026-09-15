@@ -133,6 +133,13 @@ public class FragmentAssemblyLevelEditorWindow : EditorWindow
             levelData.levelName
         );
 
+        levelData.narrationClip = (AudioClip)EditorGUILayout.ObjectField(
+            "文物讲解音频",
+            levelData.narrationClip,
+            typeof(AudioClip),
+            false
+        );
+
         levelData.backgroundSprite = (Sprite)
             EditorGUILayout.ObjectField(
                 "待清洁完整图",

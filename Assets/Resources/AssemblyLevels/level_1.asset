@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: level_1
   m_EditorClassIdentifier: 
   levelName: level_1
+  narrationClip: {fileID: 8300000, guid: 146b71814106be44b94fa34f3fc302f6, type: 3}
   backgroundSprite: {fileID: 21300000, guid: 31a2042df7fc35c498451c3697977dc5, type: 3}
   cleanBackgroundSprite: {fileID: 21300000, guid: c33135c9b9adb114391bd4a3537a932f, type: 3}
   backgroundPosition: {x: 0, y: 0.5, z: 0}

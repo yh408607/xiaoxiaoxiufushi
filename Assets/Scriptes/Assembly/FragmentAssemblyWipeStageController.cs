@@ -176,6 +176,10 @@ public class FragmentAssemblyWipeStageController : MonoBehaviour
             backgroundObject.SetActive(false);
         }
 
+        // 完成时停止残留擦拭音效，再播放一次通关音效。
+        SfxManager.Instance?.StopIfPlaying(SfxId.DustWipe);
+        SfxManager.Instance?.Play(SfxId.LevelComplete);
+
         OnLevelCompleted?.Invoke();
     }
 
